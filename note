@@ -1,0 +1,25 @@
+1. Install vpp.
+
+Download these rpms:
+vpp-18.07-1.x86_64.rpm
+vpp-lib-18.07-1.x86_64.rpm
+vpp-selinux-policy-18.07-1.x86_64.rpm
+from 
+http://mirror.centos.org/centos/7/nfv/x86_64/fdio/vpp/vpp-1807/
+
+
+
+2. Setup env.
+
+Download kvm from
+https://download.clearlinux.org/image/clear-26850-kvm.img.xz
+and fd file
+https://download.clearlinux.org/image/OVMF.fd
+
+guest host 1 <—> VPP(Bridge) <—> guest host 2
+
+
+More details:
+https://blog.csdn.net/u010827484/article/details/80685841
+
+
