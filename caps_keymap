@@ -1,0 +1,5 @@
+# Set no caps, dual ctrl
+setxkbmap -option ctrl:nocaps
+
+# Reset layout
+setxkbmap -option
