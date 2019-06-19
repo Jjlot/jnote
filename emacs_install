@@ -7,3 +7,6 @@ yum -y install libXpm-devel libjpeg-turbo-devel openjpeg-devel openjpeg2-devel t
 ./configure
 make
 make install
+
+# The c ide config
+https://tuhdo.github.io/c-ide.html
