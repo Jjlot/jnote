@@ -10,3 +10,10 @@ make install
 
 # The c ide config
 https://tuhdo.github.io/c-ide.html
+
+
+# Copy/Cut & Paste in emacs
+1. 在任一行中按下ctrl+space键，最底行会显示 Mark set 表示已经开始标记了。
+2. M-w (Copy) 
+   C-w (Cut)
+3. C-y (Paste)
