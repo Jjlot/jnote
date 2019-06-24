@@ -1,0 +1,10 @@
+* Print var type
+(gdb) whatis he
+type = struct child
+
+* Print struct details
+(gdb) ptype he
+type = struct child {
+    char name[10];
+    enum {boy, girl} gender;
+}
