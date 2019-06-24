@@ -1,3 +1,6 @@
+* Set a memory break point
+(gdb) watch 0x11223344
+
 * Print var type
 (gdb) whatis he
 type = struct child
