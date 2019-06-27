@@ -20,4 +20,16 @@ cp libssl.so.1.0.0 libcrypto.so.1.0.0 /lib64
 
 # Access
 http://localhost:8080/gui/
-The username is admin and leave the password field empty. 
+The username is admin and leave the password field empty.
+
+
+# Refs:http://heimoshuiyu.blogspot.com/2018/01/centos7utorrent.html
+wget http://download.utorrent.com/linux/utorrent-server-3.0-ubuntu-10.10-27079.x64.tar.gz
+tar -zxvf utorrent-server-3.0-ubuntu-10.10-27079.x64.tar.gz
+cd utorrent-server-v3_0
+# install openssl098e
+yum install openssl098e
+ln -s /usr/lib64/libssl.so.0.9.8e /usr/lib64/libssl.so.0.9.8
+ln -s /usr/lib64/libcrypto.so.0.9.8e /usr/lib64/libcrypto.so.0.9.8
+./utserver
+
