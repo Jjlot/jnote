@@ -1,0 +1,10 @@
+* Remap Caps-Lock key to Ctrl in CentOS
+  setxkbmap -option ctrl:nocaps
+
+* Reset layout in CentOS
+  setxkbmap -option
+
+* Remap Caps-Lock key to Ctrl in Windows 7/8
+  a. [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
+  b. "Scancode Map"=hex:00,00,00,00,00,00,00,00,02,00,00,00,1d,00,3a,00,00,00,00,00
+  c. Restart computer
