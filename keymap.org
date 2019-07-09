@@ -1,8 +1,8 @@
 * Remap Caps-Lock key to Ctrl in CentOS
-  setxkbmap -option ctrl:nocaps
+  - setxkbmap -option ctrl:nocaps
 
 * Reset layout in CentOS
-  setxkbmap -option
+  - setxkbmap -option
 
 * Remap Caps-Lock key to Ctrl in Windows 7/8
   - [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
