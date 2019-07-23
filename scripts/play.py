@@ -1,5 +1,12 @@
 import os
+import syslog
+import random
+
 path = "/home"
+
+prelog = '[Player]'
+
+syslog.syslog(prelog + 'Start')
 
 files = os.listdir(path)
 s = []
@@ -10,4 +17,7 @@ for file in files:
         s.append(file)
 
 
-print s
+# print s
+
+# Set random
+print random.sample(s, len(s))
