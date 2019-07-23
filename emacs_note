@@ -17,3 +17,7 @@ https://tuhdo.github.io/c-ide.html
 2. M-w (Copy) 
    C-w (Cut)
 3. C-y (Paste)
+
+4. Add/del breakpoint in gdb mode
+
+   (C-x C-a C-b/C-d)
