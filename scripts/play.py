@@ -2,7 +2,8 @@ import os
 import syslog
 import random
 
-path = "/home"
+path = "/home/pi/Desktop/nfs/newMovie/"
+# path = "/home/pi/Desktop/clannad/"
 
 prelog = '[Player]'
 
@@ -20,4 +21,12 @@ for file in files:
 # print s
 
 # Set random
-print random.sample(s, len(s))
+r = random.sample(s, len(s))
+print r
+
+for file in r:
+	cmd = "vlc " + path + file + " -f"
+	print cmd
+	os.system(cmd)	
+	# os.system("vlc -f " + path + file)
+
