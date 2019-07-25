@@ -27,3 +27,8 @@
    
    - C-x C-a C-b (Add breakpoint)
    - C-x C-a C-d (Delete breakpoint)
+
+** Python
+
+   - C-c p (Open python panel)
+   - C-c c (Run python)
