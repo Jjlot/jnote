@@ -32,3 +32,10 @@
 
    - C-c p (Open python panel)
    - C-c c (Run python)
+
+** Window resize
+
+   - C-x ^ (Enlarge-window)
+   - C-x } (Enlarge-window-horizontally)
+   - C-x { (Shrink-window-horizontally)
+
