@@ -1,7 +1,0 @@
-* Switch gcc version
-  
-  - yum install centos-release-scl 
-  - yum install devtoolset-7-gcc 
-  - scl enable devtoolset-7 bash
-  - gcc -v
-
