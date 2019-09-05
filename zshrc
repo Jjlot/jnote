@@ -71,6 +71,8 @@ ZSH_THEME="af-magic"
 plugins=(
   git
   colored-man-pages
+  zsh-syntax-highlighting
+  zsh-autosuggestions
 )
 
 source $ZSH/oh-my-zsh.sh
