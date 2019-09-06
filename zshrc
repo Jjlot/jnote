@@ -22,7 +22,6 @@ ZSH_THEME="robbyrussell"
 # Uncomment the following line to use hyphen-insensitive completion.
 # Case-sensitive completion must be off. _ and - will be interchangeable.
 # HYPHEN_INSENSITIVE="true"
-
 # Uncomment the following line to disable bi-weekly auto-update checks.
 # DISABLE_AUTO_UPDATE="true"
 
@@ -74,6 +73,11 @@ plugins=(
   zsh-syntax-highlighting
   zsh-autosuggestions
 )
+
+# Auto jump
+[[ -s /root/.autojump/etc/profile.d/autojump.sh ]] && source /root/.autojump/etc/profile.d/autojump.sh
+autoload -U compinit && compinit -u
+
 
 source $ZSH/oh-my-zsh.sh
 

@@ -4,3 +4,13 @@ git clone https://github.com/wting/autojump.git ~/.oh-my-zsh/custom/plugins/auto
 
 ln -s $(realpath zshrc) ~/.zshrc
 
+
+
+Grab a copy of autojump:
+
+  git clone https://github.com/wting/autojump.git /tmp/autojump
+
+Run the installation script and follow on screen instructions.
+
+  cd autojump
+  ./install.py or ./uninstall.py
