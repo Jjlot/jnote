@@ -30,7 +30,7 @@ for dirname in randplay:
 			s.append(os.path.join(path, file_name))
 
 i = 0
-while i < 10:
+while i < 3:
 	i += 1
 	for dirname in high_freq:
 		g = os.walk(path0 + dirname)
