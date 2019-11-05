@@ -42,7 +42,7 @@ while i < 3:
 r = random.sample(s, len(s))
 
 for file in r:
-	cmd = "vlc \"" + file + "\" -f"
+	cmd = "vlc \"" + file + "\" -f --video-title-show --video-title-position 6 --video-title-timeout 0x7FFFFFFF"
 	print cmd
 	syslog.syslog(prelog + cmd)
 	os.system(cmd)	
