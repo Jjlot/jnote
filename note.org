@@ -1,3 +1,9 @@
 * How to config samba
 
 https://www.jianshu.com/p/44330c22f040
+
+* Offline install of oh-my-zsh on Ubuntu
+
+https://gist.github.com/hewerthomn/65bb351bf950470f6c9e6aba8c0c04f1
+
+PS: commit git error if no git in env
