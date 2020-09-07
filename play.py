@@ -1,7 +1,13 @@
 import os
 import syslog
 import random
+import time
 
+# Mount nfs
+print(" Mounting nfs")
+while os.system("mount | grep Desktop") != 0 :
+    os.system("sudo mount -t nfs 10.0.0.102:/media/slot3_4t/media /home/pi/Desktop/nfs")
+    time.sleep(5)
 
 
 prelog = '[Player]'
@@ -17,7 +23,7 @@ high_freq= ['high_freq']
 
 s = []
 for dirname in continus:
-	print dirname
+	print(dirname)
 	g = os.walk(path0 + dirname)
 	for path,dir_list,file_list in g:
 		for dir_name in dir_list:
@@ -45,7 +51,7 @@ for file in r:
         # cmd = "vlc \"" + file + "\" -f --video-title-show --video-title-position 6 --video-title-timeout 0x7FFFFFFF"
 	cmd = "vlc \"" + file + "\" -f"
 
-	print cmd
+	print(cmd)
 	syslog.syslog(prelog + cmd)
 	os.system(cmd)	
 
