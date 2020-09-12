@@ -7,3 +7,10 @@ https://www.jianshu.com/p/44330c22f040
 https://gist.github.com/hewerthomn/65bb351bf950470f6c9e6aba8c0c04f1
 
 PS: commit git error if no git in env
+
+* CentOS 7下FTP服务器的安装配置
+https://jingyan.baidu.com/article/86fae346d536023c48121a50.html
+
+* One of the configured repositories failed
+yum clean all
+yum makecache
