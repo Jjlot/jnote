@@ -5,6 +5,8 @@ import time
 import getopt
 import sys
 
+run_mode = 'local'
+# run_mode = 'remote'
 directory = "/home/"
 debug_mode = False
 nfs_ip = "192.168.0.102"
@@ -31,20 +33,29 @@ def _play(file_name):
     """
 
 # Play a path or file
-def play(path):
-    print(" I'm playing: " + path)
+def start_play(path):
+    print(" Walking in path: " + path)
 
-    if os.path.isfile(path):
-        print(" It's a file")
-        _play(path)
+    droots = os.listdir(path)
+    for droot in droots:
+        # movie, anime ...
+        print(" Scan directory: " + droot) 
 
-    else:
-        print(" It's a directory")
-        files = os.listdir(path)
+        d1s = os.listdir(droot)
+        for d1 in d1s:
+            if os.path.isfile(d1):
+                print(" It's a file")
+                _play(d1)
 
-        for file in files:
-            abs_path = path + "/" + file
-            _play(abs_path)
+            else:
+                print(" It's a directory")
+                files = os.listdir(d1)
+
+                for file in files:
+                    abs_path = d1 + "/" + file
+                    _play(abs_path)
+
+
 
 def get_list(path):
     for file in os.listdir(path):
@@ -117,10 +128,13 @@ if __name__ == '__main__':
             print("[*] Filename is ",fileName)
             # do something
 
-    mount_nfs()
+    if run_mode == 'remote':
+        mount_nfs()
 
-    test_path = "/home/pi/Desktop/nfs/Anime/CLANNAD"
-    play(test_path)
+    test_path = "/home/src/jnote/test"
+    print(test_path)
+
+    start_play(test_path)
 
     # main()
 
