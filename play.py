@@ -57,11 +57,24 @@ def start_play(path):
 
 
 
-def get_list(path):
-    for file in os.listdir(path):
-        abs_file = path + "/" + file
+def get_list(path_in):
+    file_list = []
+
+    for file_name in os.listdir(path_in):
+        abs_file = path_in + "/" + file_name
         if os.path.isfile(abs_file):
             file_list.append(abs_file)
+
+    g = os.walk(path_in)
+    for path,dir_list,file_list in g:
+        for dir_name in dir_list:
+            # s.append(os.path.join(path, dir_name))
+            print(dir_name)
+
+    for file in file_list:
+        print("aaaa")
+        # print(file)
+
 
 def main():
 
@@ -135,6 +148,15 @@ if __name__ == '__main__':
     print(test_path)
 
     start_play(test_path)
+    """
+    mount_nfs()
+
+    test_path = "/home/pi/Desktop/nfs/Anime/CLANNAD"
+    play(test_path)
+
+    test_path = "/home/src/jnote/test"
+    get_list(test_path)
+    """
 
     # main()
 
