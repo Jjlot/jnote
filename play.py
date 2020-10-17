@@ -147,20 +147,54 @@ if __name__ == '__main__':
     test_path = "/home/src/jnote/test"
     print(test_path)
 
-    start_play(test_path)
-    """
-    mount_nfs()
+    # start_play(test_path)
 
-    test_path = "/home/pi/Desktop/nfs/Anime/CLANNAD"
-    play(test_path)
+    # 1. Find the root media directories
+    path = test_path
+    # print(" Walking in path: " + path)
 
-    test_path = "/home/src/jnote/test"
-    get_list(test_path)
-    """
+    directories = os.listdir(path)
 
-    # main()
+    # print(directories)
+    classifies = []
+    for directory in directories:
+        abs_dir = path + "/" + directory
+        # print(" Scan directory: " + abs_dir) 
+        if os.path.isdir(abs_dir):
+            # print(" New classify directory")
+            classifies.append(abs_dir)
+            # _play(d1)
 
+    # print(" Got the classifies: " + str(classifies)) 
 
+    # 2. Get all the play contents
+    contents = [] 
+    for classify in classifies:
+        ones = os.listdir(classify)
+        for one in ones:
+            contents.append(classify + "/" + one)    
+    # print(contents)
 
+    # 3. Set to random
+    contents = random.sample(contents, len(contents))
+    print(contents)
+
+    # 4. Play
+    for content in contents:
+        if os.path.isfile(content):
+            print(" It's a file")
+            _play(content)
+
+        elif os.path.isdir(content):
+
+            print(" It's a directory")
+            files = os.listdir(content)
+
+            for file in files:
+                abs_path = content + "/" + file
+                _play(abs_path)
+
+        else:
+            print(" Something error")
 
 
