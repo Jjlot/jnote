@@ -4,6 +4,7 @@ import random
 import time
 import getopt
 import sys
+import vlc
 
 # run_mode = 'local'
 run_mode = 'remote'
@@ -20,8 +21,8 @@ def mount_nfs():
         os.system("sudo mount -t nfs " + nfs_ip + ":" + nfs_dir + " " + local_dir)
         time.sleep(5)
 
-def _play(file_name):
-    print(" File play: " + file_name)
+# def _play(file_name):
+#     print(" File play: " + file_name)
 
     """
     # cmd = "vlc \"" + file + "\" -f --video-title-show --video-title-position 6 --video-title-timeout 0x7FFFFFFF"
@@ -31,6 +32,31 @@ def _play(file_name):
     syslog.syslog(prelog + cmd)
     os.system(cmd)
     """
+
+def _play(video):
+    # creating Instance class object 
+    player = vlc.Instance() 
+
+    # creating a new media 
+    media = player.media_new(video)
+
+    # creating a media player object 
+    media_player = player.media_player_new() 
+
+    media_player.set_media(media) 
+
+    media_player.set_fullscreen(True)
+
+    # start playing video 
+    media_player.play() 
+    time.sleep(1)
+
+    # wait so the video can be played for 5 seconds 
+    # irrespective for length of video 
+    duration = media_player.get_length() - 1000
+    print(str(duration / 1000) + "s")
+    time.sleep(duration / 1000)
+    media_player.stop()
 
 # Play a path or file
 def start_play(path):
