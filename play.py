@@ -5,8 +5,8 @@ import time
 import getopt
 import sys
 
-run_mode = 'local'
-# run_mode = 'remote'
+# run_mode = 'local'
+run_mode = 'remote'
 directory = "/home/"
 debug_mode = False
 nfs_ip = "192.168.0.102"
@@ -150,7 +150,8 @@ if __name__ == '__main__':
     # start_play(test_path)
 
     # 1. Find the root media directories
-    path = test_path
+    # path = test_path
+    path = local_dir
     # print(" Walking in path: " + path)
 
     directories = os.listdir(path)
@@ -182,13 +183,14 @@ if __name__ == '__main__':
     # 4. Play
     for content in contents:
         if os.path.isfile(content):
-            print(" It's a file")
+            # print(" It's a file")
             _play(content)
 
         elif os.path.isdir(content):
 
-            print(" It's a directory")
+            # print(" It's a directory")
             files = os.listdir(content)
+            files.sort()
 
             for file in files:
                 abs_path = content + "/" + file
