@@ -5,6 +5,9 @@ import time
 import getopt
 import sys
 import vlc
+import functools
+import termios
+import tty
 
 # run_mode = 'local'
 run_mode = 'remote'
@@ -33,6 +36,18 @@ def mount_nfs():
     os.system(cmd)
     """
 
+"""
+def getch():  # getchar(), getc(stdin)  #PYCHOK flake                                                                                                                                                      
+    fd = sys.stdin.fileno()                                                                                                                                                                                
+    old = termios.tcgetattr(fd)                                                                                                                                                                            
+    try:                                                                                                                                                                                                   
+        tty.setraw(fd)                                                                                                                                                                                     
+        ch = sys.stdin.read(1)                                                                                                                                                                             
+    finally:                                                                                                                                                                                               
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)                                                                                                                                                      
+    return ch   
+"""
+
 def _play(video):
     # creating Instance class object 
     player = vlc.Instance() 
@@ -50,6 +65,27 @@ def _play(video):
     # start playing video 
     media_player.play() 
     time.sleep(1)
+    duration = 1000
+    mv_length = media_player.get_length() - 1000
+    print(str(mv_length / 1000) + "s")
+
+    while duration < mv_length:
+        time.sleep(1)
+        duration = duration + 1000
+        if media_player.get_state() != vlc.State.Playing:
+            media_player.stop()
+            return
+
+        """
+        k = getch()
+        if k == 'q':
+            media_player.stop()
+            return
+        """
+        print('.')
+
+    """
+    time.sleep(1)
 
     # wait so the video can be played for 5 seconds 
     # irrespective for length of video 
@@ -57,6 +93,7 @@ def _play(video):
     print(str(duration / 1000) + "s")
     time.sleep(duration / 1000)
     media_player.stop()
+    """
 
 # Play a path or file
 def start_play(path):
