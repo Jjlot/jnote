@@ -11,6 +11,8 @@ import tty
 
 #@ -------- DEPENDENCY --------
 """
+pip install pynput
+
 yum install kernel-headers-$(uname -r) -y
 yum install gcc -y
 yum install python-devel
