@@ -9,9 +9,16 @@ import functools
 import termios
 import tty
 
+from pynput import keyboard
+from flask import Flask
+from threading import Thread
+
+
 #@ -------- DEPENDENCY --------
 """
 pip install pynput
+
+pip install flask
 
 yum install kernel-headers-$(uname -r) -y
 yum install gcc -y
@@ -37,8 +44,6 @@ local_dir = "/home/pi/Desktop/nfs"
 #@ -------- CONFIG end --------
 
 #@ -------- HOTKEYS --------
-from pynput import keyboard
-
 # The key combination to check
 COMBINATIONS = [
     {keyboard.Key.ctrl, keyboard.KeyCode(char='q')},
@@ -68,6 +73,26 @@ def hotkey_listener():
         listener.join()
 
 
+#@ -------- RESTAPI --------
+app = Flask(__name__)
+
+@app.route('/')  
+def hello_world():
+    return "hello world"
+
+@app.route('/title/',methods=['GET'])
+def rest_get_title():
+    return str(media_player.get_title())
+
+# curl --request POST 127.0.0.1:5000/next/
+@app.route('/next/',methods=['POST'])
+def rest_post_next():
+    return str(media_player.stop())
+
+def web_server():
+    app.run()
+
+
 #@ -------- WHAT --------
 def mount_nfs():
     # Mount nfs
@@ -92,7 +117,7 @@ def _play(video):
 
     media_player.set_video_title_display(3, 3000)
 
-    media_player.set_fullscreen(True)
+    # media_player.set_fullscreen(True)
 
     # start playing video 
     media_player.play() 
@@ -106,7 +131,7 @@ def _play(video):
         duration = duration + 1000
         status = media_player.get_state()
 
-        print(status)
+        # print(status)
         if media_player.get_state() != vlc.State.Playing:
             media_player.stop()
             return
@@ -167,9 +192,13 @@ if __name__ == '__main__':
     print(contents)
 
     # 3.5 Start hot_key listener
-    from threading import Thread
     t = Thread(target=hotkey_listener)
     t.start()
+
+    # 3.6 Start web interface
+    t2 = Thread(target=web_server)
+    t2.start()
+
 
     # 4. Play
     for content in contents:
