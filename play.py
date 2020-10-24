@@ -88,7 +88,9 @@ def _play(video):
 
     media_player.set_media(media) 
 
-    # media_player.set_fullscreen(True)
+    media_player.set_video_title_display(3, 3000)
+
+    media_player.set_fullscreen(True)
 
     # start playing video 
     media_player.play() 
