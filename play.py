@@ -39,7 +39,7 @@ pip install system_hotkey
 
 #@ -------- GLOBAL --------
 media_player = None
-
+jump = False
 
 
 #@ -------- CONFIG --------
@@ -64,10 +64,11 @@ COMBINATIONS = [
 current = set()
 
 def execute():
-    print ("Do Something")
-
     global media_player
+    global jump
+    jump = True
     media_player.stop()
+
 def on_press(key):
     if any([key in COMBO for COMBO in COMBINATIONS]):
         current.add(key)
@@ -112,7 +113,12 @@ def mount_nfs():
         time.sleep(5)
 
 def _play(video):
+    print('playing: %s', video)
+
+
     global media_player
+    global jump
+    jump = False
 
     # creating Instance class object 
     player = vlc.Instance() 
@@ -145,6 +151,9 @@ def _play(video):
         if media_player.get_state() != vlc.State.Playing:
             media_player.stop()
             return
+
+    media_player.stop()
+    return
 
 if __name__ == '__main__':
 
@@ -225,6 +234,9 @@ if __name__ == '__main__':
             for file in files:
                 abs_path = content + "/" + file
                 _play(abs_path)
+
+                if jump:
+                    break;
 
         else:
             print(" Something error")
