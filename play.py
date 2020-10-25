@@ -235,6 +235,7 @@ if __name__ == '__main__':
                 abs_path = content + "/" + file
                 _play(abs_path)
 
+                global jump
                 if jump:
                     break;
 
