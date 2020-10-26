@@ -1,6 +1,8 @@
 from sqlalchemy import Column, String, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+# import sqlalchemy as sa
+# sa.Column, sa.String, sa.create_engine
 
 Base = declarative_base()
 
