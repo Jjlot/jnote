@@ -21,3 +21,8 @@ allow_writeable_chroot=YES
 * One of the configured repositories failed
 yum clean all
 yum makecache
+
+# Git config
+git config --global user.name Jjlot
+git config --global user.email jingran84@163.com
+
