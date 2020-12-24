@@ -26,27 +26,75 @@
 
     ovs-ofctl dump-flows br0 table=7
 
-** ovs-vscctl
+** ovs-vsctl
+*** Add ovs bridge
+    ovs-vsctl add-br br0 -- set Bridge br0 fail-mode=secure
 
-   ovs-vsctl add-port br-ex vxlan-1 -- set interface vxlan-1 type=vxlan options:remote_ip=192.168.100.3
+    ovs-vsctl set bridge br0 datapath_type=netdev    
 
-   ovs-vsctl add-port br-ex ovn-7788 -- set interface ovn-7788 type=geneve options:remote_ip=192.168.100.3
+    ovs-vsctl set bridge br0 protocols=OpenFlow10,OpenFlow11,OpenFlow12,OpenFlow13,OpenFlow14,OpenFlow15
+    
+*** Add ovs port
+    ovs-vsctl add-port br0 eth0 -- set interface eth0 ofport_request=10
 
+    ovs-vsctl add-port br0 veth10 -- set interface veth10 type=internal ofport_request=10
+   
+    ovs-vsctl add-port br-ex vxlan-1 -- set interface vxlan-1 type=vxlan options:remote_ip=192.168.100.3
+
+    ovs-vsctl add-port br-ex ovn-7788 -- set interface ovn-7788 type=geneve options:remote_ip=192.168.100.3
+
+*** Set controller    
+    ovs-vsctl set-controller br-int tcp:11.251.96.22:6633
+   
 ** ovn commands   
    ovs-vsctl set open . external-ids:ovn-encap-ip=10.0.0.10
 
    ovs-vsctl set open . external-ids:ovn-encap-type=stt
 
 ** ovs-ofctl
-   ovs-ofctl add-flow br-int table=0,priority=103,dl_type=0x0800,nw_dst=100.1.1.1,actions=output:1
+   ovs-ofctl add-flow br0 table=0,priority=1000,dl_type=0x0800,nw_dst=100.1.1.1,actions=output:1
 
-   ovs-ofctl add-flow br-int table=0,priority=101,dl_type=0x0800,nw_dst=111.1.1.100,actions=mod_dl_src=00:11:22:33:44:55,mod_dl_dst=00:55:44:33:22:11,mod_nw_src=10.0.0.26,output:2
+   ovs-ofctl -O OpenFlow13 add-group br0 group_id=10,type=indirect,bucket=mod_vlan_vid:3,output:10
 
-   ovs-ofctl add-flow br-int table=0,priority=101,in_port=3,actions=mod_dl_src=00:11:22:33:44:55,mod_dl_dst=00:55:44:33:22:11,mod_nw_dst=10.0.0.26,output:3
-
-   ovs-ofctl add-flow br-int table=0,priority=102,in_port=2,actions=output:3
-
+   ovs-ofctl -O OpenFlow13 add-meter br0 "meter=1 kbps burst stats bands=type=drop rate=1000000 burst_size=80000"
    
+*** The match list   
+    in_port=3
+
+    dl_type=0x0800
+
+    nw_dst=100.1.1.1
+
+    dl_vlan=3
+
+    nw_proto=17
+
+    tp_dst=67
+    
+*** The Action list    
+    drop
+
+    group:10
+
+    mod_vlan_vid:3
+    
+    output:1
+
+    mod_dl_src=00:11:22:33:44:55
+
+    mod_dl_dst=00:55:44:33:22:11
+
+    mod_nw_src=200.1.1.1
+
+    goto_table:60
+
+    pop_vlan
+    
+** ovs-appctl
+   ovs-appctl dpif/show
+
+   ovs-appctl ofproto/trace br0 in_port=3,tcp,nw_src=192.0.2.2,tcp_dst=22   
+
 * Using ovs for dpdk
 
 ** Compile dpdk
