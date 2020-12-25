@@ -58,4 +58,9 @@ ls -l | awk '{print $5}' | sed -n '2p'
   ping 127.0.0.1 -c 4
   date +"%T.%N"
 #+END_SRC
-  
+
+* Loop
+for vm in $(virsh list | grep running | awk {'print $2'}); do echo $vm; virsh domiflist $vm; done
+
+brctl showmacs br0
+

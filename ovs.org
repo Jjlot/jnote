@@ -43,6 +43,8 @@
     ovs-ofctl -O OpenFlow13 dump-meters br0
    
 *** The match list   
+    conj_id=1
+
     in_port=3
 
     dl_type=0x0800
@@ -60,6 +62,10 @@
     dl_dst=fa:16:3e:04:01:0b
     
 *** The Action list    
+    # conjunction(id, k/n)
+    # k是当前flow处于的conjunction的维度，n是conjunction所有的维度个数。
+    conjunction\(1,1/2\)
+    
     drop
 
     group:10
@@ -82,7 +88,7 @@
 *** Add ovs bridge
     ovs-vsctl add-br br0 -- set Bridge br0 fail-mode=secure
 
-    ovs-vsctl set bridge br0 datapath_type=netdev    
+    ovs-vsctl set bridge br0 datapath_type=netdev
 
     ovs-vsctl set bridge br0 protocols=OpenFlow10,OpenFlow11,OpenFlow12,OpenFlow13,OpenFlow14,OpenFlow15
     
