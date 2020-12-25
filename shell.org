@@ -1,0 +1,61 @@
+#+TITLE: Shell
+#+STARTUP: showall
+
+* How to print in journalctl
+  + systemd-cat  Connect a pipeline or program's output with the journal
+#+BEGIN_SRC sh
+
+printf "hi" | systemd-cat
+
+#+END_SRC
+
+* How to read ini config file
+
+#+BEGIN_SRC sh
+GetKey(){
+    section=$1
+    key=$2
+    #使用正则表达是获取key所对应的value
+    sed -n "/\[$section\]/,/\[.*\]/{
+      /^\[.*\]/d
+      /^[ \t]*$/d
+      /^$/d
+      /^#.*$/d
+      s/^[ \t]*$key[ \t]*=[ \t]*\(.*\)[ \t]*/\1/p
+    }" file_name
+}
+
+GetKey $section $key
+#+END_SRC
+
+* How to write txt file
+#+BEGIN_SRC 
+cat >/tmp/intf.xml <<EOF
+hi
+EOF
+#+END_SRC
+
+#+BEGIN_SRC sh
+awk 是很实用的文本处理命令，print 到后带的是你要获取第几列，sed -n 是指定第几行。
+ls -l | awk '{print $5}' | sed -n '2p'
+#+END_SRC
+
+* Find the
+| 符号 | 含义                                                                 |
+| *    | 表示0到无穷多个任意字符                                              |
+| ?    | 表示有一个任意字符                                                   |
+| []   | 表示有一个在中括号内的字符。例如[abc]表示有个字符，可能是abc其中一个 |
+| [-]  | 表示在编码顺序内的所有字符。例如[1-7]表示有个字符，范围1到7其中一个  |
+| [^]  | 表示反f向选择。例如表示有一个字符，只要不是a,b,c的其他字符都可以     |
+
+
+
+* Time duration
+#+BEGIN_SRC shell
+  #!/bin/sh
+
+  date +"%T.%N"
+  ping 127.0.0.1 -c 4
+  date +"%T.%N"
+#+END_SRC
+  

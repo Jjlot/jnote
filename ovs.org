@@ -26,37 +26,21 @@
 
     ovs-ofctl dump-flows br0 table=7
 
-** ovs-vsctl
-*** Add ovs bridge
-    ovs-vsctl add-br br0 -- set Bridge br0 fail-mode=secure
+*** Show dp interface index
+    ovs-ofctl dump-ports-desc br0
 
-    ovs-vsctl set bridge br0 datapath_type=netdev    
+*** Flow operations    
+    ovs-ofctl -O OpenFlow13 add-flow br0 table=0,priority=1000,dl_type=0x0800,nw_dst=100.1.1.1,actions=output:1
 
-    ovs-vsctl set bridge br0 protocols=OpenFlow10,OpenFlow11,OpenFlow12,OpenFlow13,OpenFlow14,OpenFlow15
-    
-*** Add ovs port
-    ovs-vsctl add-port br0 eth0 -- set interface eth0 ofport_request=10
-
-    ovs-vsctl add-port br0 veth10 -- set interface veth10 type=internal ofport_request=10
+    ovs-ofctl -O OpenFlow13 dump-flows br0 table:10
    
-    ovs-vsctl add-port br-ex vxlan-1 -- set interface vxlan-1 type=vxlan options:remote_ip=192.168.100.3
+    ovs-ofctl -O OpenFlow13 add-group br0 group_id=10,type=indirect,bucket=mod_vlan_vid:3,output:10
 
-    ovs-vsctl add-port br-ex ovn-7788 -- set interface ovn-7788 type=geneve options:remote_ip=192.168.100.3
-
-*** Set controller    
-    ovs-vsctl set-controller br-int tcp:11.251.96.22:6633
+    ovs-ofctl -O OpenFlow13 dump-groups br0
    
-** ovn commands   
-   ovs-vsctl set open . external-ids:ovn-encap-ip=10.0.0.10
+    ovs-ofctl -O OpenFlow13 add-meter br0 "meter=1 kbps burst stats bands=type=drop rate=1000000 burst_size=80000"
 
-   ovs-vsctl set open . external-ids:ovn-encap-type=stt
-
-** ovs-ofctl
-   ovs-ofctl add-flow br0 table=0,priority=1000,dl_type=0x0800,nw_dst=100.1.1.1,actions=output:1
-
-   ovs-ofctl -O OpenFlow13 add-group br0 group_id=10,type=indirect,bucket=mod_vlan_vid:3,output:10
-
-   ovs-ofctl -O OpenFlow13 add-meter br0 "meter=1 kbps burst stats bands=type=drop rate=1000000 burst_size=80000"
+    ovs-ofctl -O OpenFlow13 dump-meters br0
    
 *** The match list   
     in_port=3
@@ -70,6 +54,10 @@
     nw_proto=17
 
     tp_dst=67
+
+    dl_src=fa:16:3e:71:1f:31
+
+    dl_dst=fa:16:3e:04:01:0b
     
 *** The Action list    
     drop
@@ -89,12 +77,44 @@
     goto_table:60
 
     pop_vlan
+
+** ovs-vsctl
+*** Add ovs bridge
+    ovs-vsctl add-br br0 -- set Bridge br0 fail-mode=secure
+
+    ovs-vsctl set bridge br0 datapath_type=netdev    
+
+    ovs-vsctl set bridge br0 protocols=OpenFlow10,OpenFlow11,OpenFlow12,OpenFlow13,OpenFlow14,OpenFlow15
+    
+*** Add ovs port
+    ovs-vsctl add-port br0 eth0 -- set interface eth0 ofport_request=10
+
+    ovs-vsctl add-port br0 veth10 -- set interface veth10 type=internal ofport_request=10
+   
+    ovs-vsctl add-port br-ex vxlan-1 -- set interface vxlan-1 type=vxlan options:remote_ip=192.168.100.3
+
+    ovs-vsctl add-port br-ex ovn-7788 -- set interface ovn-7788 type=geneve options:remote_ip=192.168.100.3
+
+*** Set controller    
+    ovs-vsctl set-controller br0 tcp:11.251.96.22:6633
+   
+** ovn commands   
+   ovs-vsctl set open . external-ids:ovn-encap-ip=10.0.0.10
+
+   ovs-vsctl set open . external-ids:ovn-encap-type=stt
     
 ** ovs-appctl
    ovs-appctl dpif/show
 
    ovs-appctl ofproto/trace br0 in_port=3,tcp,nw_src=192.0.2.2,tcp_dst=22   
 
+   ovs-appctl bridge/dump-flows br0
+
+** ovs-dpctl
+   ovs-dpctl show
+
+   ovs-dpctl dump-flows
+   
 * Using ovs for dpdk
 
 ** Compile dpdk

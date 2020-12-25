@@ -1,0 +1,33 @@
+#+TITLE: Python
+#+STARTUP: showall
+
+* How to use python logging
+#+BEGIN_SRC python
+import logging
+
+logging.basicConfig(filename='logger.log', level=logging.INFO)
+
+logging.info('info message')
+logging.warn('warn message')
+logging.error('error message')
+#+END_SRC
+
+* How to use syslog
+#+BEGIN_SRC python
+import syslog
+
+syslog.syslog('String test')
+#+END_SRC
+
+
+* Time duration
+#+BEGIN_SRC python
+  import datetime
+
+  start = datetime.datetime.now()
+  # Some process
+  end = datetime.datetime.now()
+
+  duration = end - start
+  print(' ----->time result: start at %s, end at %s, duration %s\n', str(start), str(end), str(duration))
+#+END_SRC
