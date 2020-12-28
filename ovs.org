@@ -1,5 +1,47 @@
 #+STARTUP: showall
 
+* Install rdo-packstack on CentOS 7
+** Update yum repo (optional)
+   + For x86
+   
+   curl https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo > /etc/yum.repos.d/CentOS-Base.repo
+
+   + or for Aarch64
+   
+   curl https://mirrors.huaweicloud.com/repository/conf/CentOS-AltArch-7.repo > /etc/yum.repos.d/CentOS-Base.repo
+
+   yum clean all
+
+   yum makecache
+
+** Install rdo
+   yum install -y https://rdoproject.org/repos/rdo-release.rpm
+   
+   yum install -y openstack-packstack
+
+   + Generate common answers
+   
+   packstack --gen-answer-file=answers.txt
+
+   + or special configurations
+   
+   packstack --gen-answer-file=answers.txt \
+   --provision-demo=n \
+   --os-neutron-ovn-bridge-mappings=extnet:br-ex \
+   --os-neutron-ovn-bridge-interfaces=br-ex:enp0s3 \
+   --os-debug-mode=y \
+   --os-cinder-install=n \
+   --os-swift-install=n \
+   --os-ceilometer-install=n \
+   --os-aodh-install=n \
+   --cinder-volumes-create=n \
+   --os-heat-cfn-install=n \
+   --os-neutron-ovn-tunnel-if=enp0s8 \
+   --os-neutron-ovn-tunnel-subnets=192.168.56.0/24 \
+   --os-compute-hosts=192.168.56.107,192.168.56.108
+   
+   packstack --answer-file=answers.txt
+   
 * Compile OVS on CentOS 7
 ** Before compile
    yum install make gcc curl wget vim openssl-devel autoconf automake rpm-build libtool redhat-rpm-config python-devel openssl-devel kernel-devel kernel-debug-devel gcc-c++ unbound-devel unbound python-sphinx
