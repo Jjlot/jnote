@@ -60,7 +60,28 @@ ls -l | awk '{print $5}' | sed -n '2p'
 #+END_SRC
 
 * Loop
-for vm in $(virsh list | grep running | awk {'print $2'}); do echo $vm; virsh domiflist $vm; done
+  for vm in $(virsh list | grep running | awk {'print $2'}); do echo $vm; virsh domiflist $vm; done
 
-brctl showmacs br0
+* brctl  
+  brctl showmacs br0
 
+* Name space
+  ip netns add ns10
+  
+  ip link set eth10 netns ns10
+
+  ip netns exec ns10 bash
+  
+* CentOS Update yum repo
+   + For x86
+   
+   curl https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo > /etc/yum.repos.d/CentOS-Base.repo
+
+   + or for Aarch64
+   
+   curl https://mirrors.huaweicloud.com/repository/conf/CentOS-AltArch-7.repo > /etc/yum.repos.d/CentOS-Base.repo
+
+   yum clean all
+
+   yum makecache
+   
