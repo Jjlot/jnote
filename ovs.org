@@ -3,245 +3,316 @@
 * Install rdo-packstack on CentOS 7
 
 ** Install rdo
-   yum install -y https://rdoproject.org/repos/rdo-release.rpm
+yum install -y https://rdoproject.org/repos/rdo-release.rpm
    
-   yum install -y openstack-packstack
+yum install -y openstack-packstack
 
-   + Generate common answers
-   
-   packstack --gen-answer-file=answers.txt
++ Generate common answers
 
-   + or special configurations
+  packstack --gen-answer-file=answers.txt
+
++ or special configurations
+
+  packstack --gen-answer-file=answers.txt \
+  --provision-demo=n \
+  --os-neutron-ovn-bridge-mappings=extnet:br-ex \
+  --os-neutron-ovn-bridge-interfaces=br-ex:enp0s3 \
+  --os-debug-mode=y \
+  --os-cinder-install=n \
+  --os-swift-install=n \
+  --os-ceilometer-install=n \
+  --os-aodh-install=n \
+  --cinder-volumes-create=n \
+  --os-heat-cfn-install=n \
+  --os-neutron-ovn-tunnel-if=enp0s8 \
+  --os-neutron-ovn-tunnel-subnets=192.168.56.0/24 \
+  --os-compute-hosts=192.168.56.107,192.168.56.108
    
-   packstack --gen-answer-file=answers.txt \
-   --provision-demo=n \
-   --os-neutron-ovn-bridge-mappings=extnet:br-ex \
-   --os-neutron-ovn-bridge-interfaces=br-ex:enp0s3 \
-   --os-debug-mode=y \
-   --os-cinder-install=n \
-   --os-swift-install=n \
-   --os-ceilometer-install=n \
-   --os-aodh-install=n \
-   --cinder-volumes-create=n \
-   --os-heat-cfn-install=n \
-   --os-neutron-ovn-tunnel-if=enp0s8 \
-   --os-neutron-ovn-tunnel-subnets=192.168.56.0/24 \
-   --os-compute-hosts=192.168.56.107,192.168.56.108
-   
-   packstack --answer-file=answers.txt
+  packstack --answer-file=answers.txt
    
 * Compile OVS on CentOS 7
 ** Before compile
-   yum install make gcc curl wget vim openssl-devel autoconf automake rpm-build libtool redhat-rpm-config python-devel openssl-devel kernel-devel kernel-debug-devel gcc-c++ unbound-devel unbound python-sphinx
+yum install make gcc curl wget vim openssl-devel autoconf automake rpm-build libtool redhat-rpm-config python-devel openssl-devel kernel-devel kernel-debug-devel gcc-c++ unbound-devel unbound python-sphinx
 
-   ./boot.sh
+./boot.sh
 
-   ./configure
+./configure
 
-   make rpm-fedora
+make rpm-fedora
 
-   Target is under ./rpm/rpmbuild/RPMS/
+Target is under ./rpm/rpmbuild/RPMS/
 
+** Tutorials 
+the bridge is not visible to the operating system’s network stack, so ip cannot see it or affect it, which means that utilities like ping and tcpdump will not work either. 
+
+The resubmit action is an Open vSwitch extension. However, the
+goto_table instruction in OpenFlow 1.1 and later can be viewed as
+a kind of restricted resubmit.
+
+goto_table必须move forward，resubmit可以move back.
+
+Actions只能包含一个goto_table，但是可以包含多个resubmit，多个resubmit会复制报文，分别送至多个table
+   
 * ovs commands   
 ** Ovsdb commands
-   ovsdb-client list-dbs
+ovsdb-client list-dbs
 
-   ovsdb-client list-tables Open_vSwitch
+ovsdb-client list-tables Open_vSwitch
 
-   ovsdb-client dump Open_vSwitch Bridge
+ovsdb-client dump Open_vSwitch Bridge
 
 ** ovs-ofctl
 *** Check openflow version
-    ovs-ofctl -V
+ovs-ofctl -V
 
-    ovs-ofctl dump-flows br0 table=7
+ovs-ofctl dump-flows br0 table=7
 
 *** Show dp interface index
-    ovs-ofctl dump-ports-desc br0
+ovs-ofctl dump-ports-desc br0
 
 *** Flow operations    
-    ovs-ofctl -O OpenFlow13 add-flow br0 table=0,priority=1000,dl_type=0x0800,nw_dst=100.1.1.1,actions=output:1
+ovs-ofctl -O OpenFlow13 add-flow br0 table=0,priority=1000,dl_type=0x0800,nw_dst=100.1.1.1,actions=output:1
 
-    ovs-ofctl -O OpenFlow13 dump-flows br0 table:10
+ovs-ofctl -O OpenFlow13 dump-flows br0 table:10
    
-    ovs-ofctl -O OpenFlow13 add-group br0 group_id=10,type=indirect,bucket=mod_vlan_vid:3,output:10
+ovs-ofctl -O OpenFlow13 add-group br0 group_id=10,type=indirect,bucket=mod_vlan_vid:3,output:10
 
-    ovs-ofctl -O OpenFlow13 dump-groups br0
+ovs-ofctl -O OpenFlow13 dump-groups br0
    
-    ovs-ofctl -O OpenFlow13 add-meter br0 "meter=1 kbps burst stats bands=type=drop rate=1000000 burst_size=80000"
+ovs-ofctl -O OpenFlow13 add-meter br0 "meter=1 kbps burst stats bands=type=drop rate=1000000 burst_size=80000"
 
-    ovs-ofctl -O OpenFlow13 dump-meters br0
+ovs-ofctl -O OpenFlow13 dump-meters br0
 
-    # ICMP reply
-    ovs-ofctl add-flow br0 table=0,in_port=10,icmp,nw_dst=100.1.1.20,icmp_type=8,icmp_code=0,actions=push:"NXM_OF_ETH_SRC[]",push:"NXM_OF_ETH_DST[]",pop:"NXM_OF_ETH_SRC[]",pop:"NXM_OF_ETH_DST[]",push:"NXM_OF_IP_SRC[]",push:"NXM_OF_IP_DST[]",pop:"NXM_OF_IP_SRC[]",pop:"NXM_OF_IP_DST[]",load:"0xff->NXM_NX_IP_TTL[]",load:"0->NXM_OF_ICMP_TYPE[]",in_port
+*** Delete flows
+ovs-ofctl del-flows br-int
+    
+*** ICMP reply
+ovs-ofctl add-flow br0 table=0,in_port=10,icmp,nw_dst=100.1.1.20,icmp_type=8,icmp_code=0,actions=push:"NXM_OF_ETH_SRC[]",push:"NXM_OF_ETH_DST[]",pop:"NXM_OF_ETH_SRC[]",pop:"NXM_OF_ETH_DST[]",push:"NXM_OF_IP_SRC[]",push:"NXM_OF_IP_DST[]",pop:"NXM_OF_IP_SRC[]",pop:"NXM_OF_IP_DST[]",load:"0xff->NXM_NX_IP_TTL[]",load:"0->NXM_OF_ICMP_TYPE[]",in_port
 
-    # ARP reply
-    ovs-ofctl add-flow br0 table=0,in_port=10,arp,arp_tpa=100.1.1.20,arp_op=1,actions=move:"NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[]",mod_dl_src:"00:11:22:33:44:55",load:"0x02->NXM_OF_ARP_OP[]",move:"NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[]",load:"0x001122334455->NXM_NX_ARP_SHA[]",move:"NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[]",load:"0x64010114->NXM_OF_ARP_SPA[]",in_port
+*** ARP reply
+ovs-ofctl add-flow br0 table=0,in_port=10,arp,arp_tpa=100.1.1.20,arp_op=1,actions=move:"NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[]",mod_dl_src:"00:11:22:33:44:55",load:"0x02->NXM_OF_ARP_OP[]",move:"NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[]",load:"0x001122334455->NXM_NX_ARP_SHA[]",move:"NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[]",load:"0x64010114->NXM_OF_ARP_SPA[]",in_port
 
-    # Learn
-    ovs-ofctl add-flow br0 "table=0 actions=learn(table=10,arp,
-NXM_OF_VLAN_TCI[0..11], NXM_OF_ETH_DST[]=NXM_OF_ETH_SRC[], load:NXM_OF_IN_PORT[]->NXM_NX_REG0[0..15]), resubmit(,3)"
+*** Action learn
+ovs-ofctl add-flow br0 "table=0 actions=learn(table=10,NXM_OF_VLAN_TCI[0..11], NXM_OF_ETH_DST[]=NXM_OF_ETH_SRC[], load:NXM_OF_IN_PORT[]->NXM_NX_REG0[0..15]), resubmit(,3)"
+
+*** TCP learn
+ovs-ofctl add-flow br0 "table=0,tcp,actions=learn(table=10,NXM_OF_ETH_TYPE=0x0800,NXM_OF_IP_PROTO=6,NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_PROTO[]=NXM_OF_IP_PROTO[],NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[],NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[]), resubmit(,3)"
+
+sendp(Ether()/IP(src="192.168.0.20", dst="192.168.0.10")/TCP(sport=1024, dport=2048, flags=0x02, seq=100), iface="veth20")
+
+*** Arp reply learn
+ovs-ofctl add-flow br0 "table=0 priority=0 actions=goto_table:10"
+ovs-ofctl add-flow br0 "table=10 arp actions=learn(table=0,dl_type=0x0806,arp_tpa=NXM_OF_ARP_TPA,arp_op=1,load:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST,,output:NXM_OF_IN_PORT), resubmit(,3)"
+
+ovs-ofctl add-flow br0 "table=10 arp actions=learn(table=0,dl_type=0x0806,arp_tpa=NXM_OF_ARP_TPA,arp_op=1,push:NXM_OF_ETH_SRC[],output:NXM_OF_IN_PORT), resubmit(,3)"
+
+*** Tracking
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=-trk, tcp, in_port=veth10, actions=ct(table=0)"
+
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+new, tcp, in_port=veth10, actions=ct(commit),veth20"
+
+sendp(Ether()/IP(src="192.168.0.10", dst="192.168.0.20")/TCP(sport=1024, dport=2048, flags=0x02, seq=100), iface="veth10")
 
 *** About OXM
-    http://www.openvswitch.org/support/dist-docs/
+http://www.openvswitch.org/support/dist-docs/
 
-    man ovs-fields
+man ovs-fields
 
-    OXM (OpenFlow Extensible Match)
+OXM (OpenFlow Extensible Match)
 
-    NXM (Nicira Extended Match)
+NXM (Nicira Extended Match)
 
-    ovs-tcpdump is in package openvswitch-test.rpm
+ovs-tcpdump is in package openvswitch-test.rpm
     
 *** The match list   
-    conj_id=1
+conj_id=1
 
-    in_port=3
+in_port=3
 
-    dl_type=0x0800
+dl_type=0x0800
 
-    nw_dst=100.1.1.1
+nw_dst=100.1.1.1
 
-    dl_vlan=3
+dl_vlan=3
 
-    nw_proto=17
+nw_proto=17
 
-    tp_dst=67
+tp_dst=67
 
-    dl_src=fa:16:3e:71:1f:31
+dl_src=fa:16:3e:71:1f:31
 
-    dl_dst=fa:16:3e:04:01:0b
+dl_dst=fa:16:3e:04:01:0b
     
 *** The Action list    
-    # conjunction(id, k/n)
-    # k是当前flow处于的conjunction的维度，n是conjunction所有的维度个数。
-    conjunction\(1,1/2\)
+# conjunction(id, k/n)
+# k是当前flow处于的conjunction的维度，n是conjunction所有的维度个数。
+conjunction\(1,1/2\)
     
-    drop
+drop
 
-    group:10
+group:10
 
-    mod_vlan_vid:3
+mod_vlan_vid:3
     
-    output:1
+output:1
 
-    mod_dl_src=00:11:22:33:44:55
+mod_dl_src=00:11:22:33:44:55
 
-    mod_dl_dst=00:55:44:33:22:11
+mod_dl_dst=00:55:44:33:22:11
 
-    mod_nw_src=200.1.1.1
+mod_nw_src=200.1.1.1
 
-    goto_table:60
+goto_table:60
 
-    pop_vlan
+pop_vlan
 
 ** ovs-vsctl
+ovs-vsctl set Open_vSwitch . Other_config:hw-offload=true
+
 *** Add ovs bridge
-    ovs-vsctl add-br br0 -- set Bridge br0 fail-mode=secure
+ovs-vsctl add-br br0 -- set Bridge br0 fail-mode=secure
 
-    ovs-vsctl set bridge br0 datapath_type=netdev
+ovs-vsctl set bridge br0 datapath_type=netdev
 
-    ovs-vsctl set bridge br0 protocols=OpenFlow10,OpenFlow11,OpenFlow12,OpenFlow13,OpenFlow14,OpenFlow15
+ovs-vsctl set bridge br0 protocols=OpenFlow10,OpenFlow11,OpenFlow12,OpenFlow13,OpenFlow14,OpenFlow15
     
 *** Add ovs port
-    ovs-vsctl add-port br0 eth0 -- set interface eth0 ofport_request=10
+ovs-vsctl add-port br0 eth0 -- set interface eth0 ofport_request=10
 
-    ovs-vsctl add-port br0 veth10 -- set interface veth10 type=internal ofport_request=10
+ovs-vsctl add-port br0 veth10 -- set interface veth10 type=internal ofport_request=10
    
-    ovs-vsctl add-port br-ex vxlan-1 -- set interface vxlan-1 type=vxlan options:remote_ip=192.168.100.3
+ovs-vsctl add-port br-ex vxlan-1 -- set interface vxlan-1 type=vxlan options:remote_ip=192.168.100.3
 
-    ovs-vsctl add-port br-ex ovn-7788 -- set interface ovn-7788 type=geneve options:remote_ip=192.168.100.3
+ovs-vsctl add-port br-ex ovn-7788 -- set interface ovn-7788 type=geneve options:remote_ip=192.168.100.3
 
 *** Set controller    
-    ovs-vsctl set-controller br0 tcp:11.251.96.22:6633
+ovs-vsctl set-controller br0 tcp:11.251.96.22:6633
    
 ** ovn commands   
-   ovs-vsctl set open . external-ids:ovn-encap-ip=10.0.0.10
+ovs-vsctl set open . external-ids:ovn-encap-ip=10.0.0.10
 
-   ovs-vsctl set open . external-ids:ovn-encap-type=stt
+ovs-vsctl set open . external-ids:ovn-encap-type=stt
     
 ** ovs-appctl
-   ovs-appctl dpif/show
+ovs-appctl dpif/show
 
-   ovs-appctl ofproto/trace br0 in_port=3,tcp,nw_src=192.0.2.2,tcp_dst=22
+ovs-appctl ofproto/trace br0 in_port=3,tcp,nw_src=192.0.2.2,tcp_dst=22
 
-   ovs-appctl bridge/dump-flows br0
+ovs-appctl bridge/dump-flows br0
 
+*** Dump flows
+ovs-appctl dpctl/dump-flows -m
+
+*** Tracking
+ovs-appctl dpctl/dump-conntrack
+
+ovs-appctl dpctl/flush-conntrack
+    
 ** ovs-dpctl
-   ovs-dpctl show
+ovs-dpctl show
 
-   ovs-dpctl dump-flows
+ovs-dpctl dump-flows
    
+ovs-dpctl dump-flows type=offload
+
 * Using ovs for dpdk
-
 ** Compile dpdk
+yum install gcc make numactl-devel python2 python36 diffutils
 
-   yum install gcc make numactl-devel python2 python36 diffutils
+export DPDK_DIR=/usr/src/dpdk-18.11
 
-   export DPDK_DIR=/usr/src/dpdk-18.11
+export DPDK_TARGET=x86_64-native-linuxapp-gcc
 
-   export DPDK_TARGET=x86_64-native-linuxapp-gcc
+export DPDK_BUILD=$DPDK_DIR/$DPDK_TARGET
 
-   export DPDK_BUILD=$DPDK_DIR/$DPDK_TARGET
+export LD_LIBRARY_PATH=$DPDK_DIR/x86_64-native-linuxapp-gcc/lib
 
-   export LD_LIBRARY_PATH=$DPDK_DIR/x86_64-native-linuxapp-gcc/lib
-
-   make install T=$DPDK_TARGET DESTDIR=install
+make install T=$DPDK_TARGET DESTDIR=install
 
 ** Compile OVS
+./configure --with-dpdk=$DPDK_BUILD
 
-   ./configure --with-dpdk=$DPDK_BUILD
-
-   make
+make
 
 ** Start ovs
+$DPDK_DIR/usertools/dpdk-devbind.py --bind=vfio-pci eth1 eth2
 
-   $DPDK_DIR/usertools/dpdk-devbind.py --bind=vfio-pci eth1 eth2
+$DPDK_DIR/usertools/dpdk-devbind.py --status
 
-   $DPDK_DIR/usertools/dpdk-devbind.py --status
+export PATH=$PATH:/usr/local/share/openvswitch/scripts
 
-   export PATH=$PATH:/usr/local/share/openvswitch/scripts
-
-   ovs-ctl start
+ovs-ctl start
 
 ** Add dpdk interface
+ovs-vsctl add-br br0 -- set bridge br0 datapath_type=netdev
 
-   ovs-vsctl add-br br0 -- set bridge br0 datapath_type=netdev
-
-   ovs-vsctl add-port br0 port700 -- set Interface port700 type=dpdk options:dpdk-devargs=0000:07:00.0
+ovs-vsctl add-port br0 port700 -- set Interface port700 type=dpdk options:dpdk-devargs=0000:07:00.0
 
 *** Create veth interface
 
-    ovs-docker add-port br0 eth1 <container-id>
+ovs-docker add-port br0 eth1 <container-id>
 
 *** Create vhost-user interface
 
-    # /usr/local/var/run/openvswitch/vhost-user0
-    ovs-vsctl add-port br0 vhost-user0 -- set Interface vhost-user0 type=dpdkvhostuser
+# /usr/local/var/run/openvswitch/vhost-user0
+ovs-vsctl add-port br0 vhost-user0 -- set Interface vhost-user0 type=dpdkvhostuser
     
 ** Flow table configuration
-
 *** Show port id
-
-    ovs-ofctl show br0
+ovs-ofctl show br0
 
 *** Add flow table
-
-    ovs-ofctl add-flow br0 in_port=6,idle_timeout=0,action=output:2
+ovs-ofctl add-flow br0 in_port=6,idle_timeout=0,action=output:2
 
 *** Show flow tables
+ovs-ofctl dump-flows br0
 
-    ovs-ofctl dump-flows br0
+for tb in '10' '20'; do ovs-ofctl dump-flows br-int table=$tb; done
 
 ** Check ovs dpdk and hugepage configuration
-
-   ovs-vsctl --no-wait get Open_vSwitch . other_config
+ovs-vsctl --no-wait get Open_vSwitch . other_config
 
 ** Start docker
-
-   docker run -itd --privileged --name=dpdk-docker  -v /dev/hugepages:/mnt/huge -v /usr/local/var/run/openvswitch:/var/run/openvswitch dpdk-docker
+docker run -itd --privileged --name=dpdk-docker  -v /dev/hugepages:/mnt/huge -v /usr/local/var/run/openvswitch:/var/run/openvswitch dpdk-docker
 
 ** Run l2fwd
+./l2fwd -c 0x01 -n 1  --socket-mem=1024  --no-pci --vdev=net_virtio_user0,mac=00:00:00:00:00:05,path=/var/run/openvswitch/vhost-user0 --vdev=net_virtio_user1,mac=00:00:00:00:00:01,path=/var/run/openvswitch/vhost-user1 -- -p 0x3
 
-   ./l2fwd -c 0x01 -n 1  --socket-mem=1024  --no-pci --vdev=net_virtio_user0,mac=00:00:00:00:00:05,path=/var/run/openvswitch/vhost-user0 --vdev=net_virtio_user1,mac=00:00:00:00:00:01,path=/var/run/openvswitch/vhost-user1 -- -p 0x3
+* Faucet
+** How to install faucet on CentOS 7
+yum install docker -y
+
+git clone https://github.com/faucetsdn/faucet.git
+
+cd faucet
+
+latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+
+git checkout $latest_tag
+
+docker build -t faucet/faucet -f Dockerfile.faucet .
+
+* Refs
+** OpenStack Neutron 中的 DVR 简介与 OVS 流表分析
+https://www.ibm.com/developerworks/cn/cloud/library/1509_xuwei_dvr/
+
+** Open vSwitch Firewall Driver
+https://docs.openstack.org/neutron/latest/contributor/internals/openvswitch_firewall.html
+
+** dist-docs
+http://www.openvswitch.org/support/dist-docs/
+
+** ovs-actions
+https://www.man7.org/linux/man-pages/man7/ovs-actions.7.html
+
+** ovs-fields
+https://www.man7.org/linux/man-pages/man7/ovs-fields.7.html
+
+** Neutron是如何实现虚机防火墙的
+https://www.cnblogs.com/sammyliu/p/4658746.html
+
+** Open vSwitch Firewall Driver
+https://docs.openstack.org/neutron/latest/contributor/internals/openvswitch_firewall.html
 
