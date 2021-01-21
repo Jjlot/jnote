@@ -2,212 +2,252 @@
 
 * TCP process
 ** TCP 3-way handshake
-   | TCP status | Direction | CT status   |
-   |------------+-----------+-------------|
-   | SYN        | --------> | SYN_SENT    |
-   | SYN, ACK   | <-------- | SYN_RECV    |
-   | ACK        | --------> | ESTABLISHED |
+| TCP status | Direction | CT status   |
+|------------+-----------+-------------|
+| SYN        | --------> | SYN_SENT    |
+| SYN, ACK   | <-------- | SYN_RECV    |
+| ACK        | --------> | ESTABLISHED |
 
 ** TCP 4-way wavehand
-   | TCP status | Direction | CT status |
-   |------------+-----------+-----------|
-   | FIN, ACK   | --------> | FIN_WAIT  |
-   | FIN, ACK   | <-------- | LAST_ACK  |
-   | ACK        | --------> | TIME_WAIT |
+| TCP status | Direction | CT status |
+|------------+-----------+-----------|
+| FIN, ACK   | --------> | FIN_WAIT  |
+| FIN, ACK   | <-------- | LAST_ACK  |
+| ACK        | --------> | TIME_WAIT |
 
-* TCP status
-  | State   | CWR  | ECE  | URG  | ACK  | PSH  | RST  | SYN  | FIN  |
-  |---------+------+------+------+------+------+------+------+------|
-  | Tcpdump | W    | E    | U    | .    | P    | R    | S    | F    |
-  | Scapy   | 0x80 | 0x40 | 0x20 | 0x10 | 0x08 | 0x04 | 0x02 | 0x01 |
-
-* OVS Matching fields  
-  | Match | Status description                 |
-  |-------+------------------------------------|
-  | new   | A new connection                   |
-  | est   | A committed connection             |
-  | rel   | Related  to an existing connection |
-  | rpl   | Reply direction                    |
-  | inv   | The state is invalid               |
-  | trk   | This packet is tracked             |
-  | snat  |                                    |
-  | dnat  |                                    |
-
-  + To check more informations
-  http://www.openvswitch.org//support/dist-docs/ovs-fields.7.txt
+** TCP status
+| State   | CWR  | ECE  | URG  | ACK  | PSH  | RST  | SYN  | FIN  |
+|---------+------+------+------+------+------+------+------+------|
+| Tcpdump | W    | E    | U    | .    | P    | R    | S    | F    |
+| Scapy   | 0x80 | 0x40 | 0x20 | 0x10 | 0x08 | 0x04 | 0x02 | 0x01 |
+  
+** OVS Matching fields  
+| Match | Status description                 | Code |
+|-------+------------------------------------+------|
+| new   | A new connection                   | 0x01 |
+| est   | A committed connection             | 0x02 |
+| rel   | Related  to an existing connection | 0x04 |
+| rpl   | Reply direction                    | 0x08 |
+| inv   | The state is invalid               | 0x10 |
+| trk   | This packet is tracked             | 0x20 |
+| snat  |                                    | 0x40 |
+| dnat  |                                    | 0x80 |
 
 * Some notes
-  只要是第一个packet，就认为connection是NEW，收到了第一个合法的返回，就认为connection是ESTABLISHED。
+只要是第一个packet，就认为connection是NEW，收到了第一个合法的返回，就认为connection是ESTABLISHED。
 
-  TCP: client 发出SYN包，CT模块会认为这是个NEW的connection，一旦TCP server返回了SYN/ACK，CT模块就会这个connection是ESTABLISHED。
+TCP: client 发出SYN包，CT模块会认为这是个NEW的connection，一旦TCP server返回了SYN/ACK，CT模块就会这个connection是ESTABLISHED。
 
-  UDP: client发出的第一个包，认为connection是NEW状态，server返回第一个包，认为connection是ESTABLISHED。
-  第一个UDP包创建的NEW状态的UDP connection，TTL是30；当connection变成ESTABLISHED，其TTL默认值是180。
+UDP: client发出的第一个包，认为connection是NEW状态，server返回第一个包，认为connection是ESTABLISHED。
+第一个UDP包创建的NEW状态的UDP connection，TTL是30；当connection变成ESTABLISHED，其TTL默认值是180。
 
-  ICMP: 对于有回复的ICMP，CT模块也对connection生成NEW 和 ESTABLISHED状态。
-  收到了ICMP echo reply之后，CT模块会立即删除对应的connection，
+ICMP: 对于有回复的ICMP，CT模块也对connection生成NEW 和 ESTABLISHED状态。
+收到了ICMP echo reply之后，CT模块会立即删除对应的connection，
 
 * TCP testing commands
 ** Ovs flowtable
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=100, in_port=veth10, actions=output:veth20"
+ovs-ofctl add-flow br0 \
+"table=0, priority=100, in_port=veth10, actions=output:veth20"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=100, in_port=veth20, actions=output:veth10"
+ovs-ofctl add-flow br0 \
+"table=0, priority=100, in_port=veth20, actions=output:veth10"
    
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=-trk, tcp, in_port=veth10, actions=ct(table=0)"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=-trk, tcp, in_port=veth10, actions=ct(table=0)"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=+trk+new, tcp, in_port=veth10, actions=ct(commit),veth20"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+new, tcp, in_port=veth10, actions=ct(commit),veth20"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=-trk, tcp, in_port=veth20, actions=ct(table=0)"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=-trk, tcp, in_port=veth20, actions=ct(table=0)"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=+trk+est, tcp, in_port=veth20, actions=veth10"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+est, tcp, in_port=veth20, actions=veth10"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=+trk+est, tcp, in_port=veth10, actions=veth20"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+est, tcp, in_port=veth10, actions=veth20"
 
 ** Packet send from scapy
 *** SYN
-    sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
-    /TCP(sport=1024, dport=2048, flags=0x02, seq=100), iface="veth10")
+sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
+/TCP(sport=1024, dport=2048, flags=0x02, seq=100), iface="veth10")
 
 *** SYN, ACK
-    sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
-    /TCP(sport=2048, dport=1024, flags=0x12, seq=200, ack=101), iface="veth20")
+sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
+/TCP(sport=2048, dport=1024, flags=0x12, seq=200, ack=101), iface="veth20")
 
 *** ACK
-    sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
-    /TCP(sport=1024, dport=2048, flags=0x10, seq=101, ack=201), iface="veth10")
+sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
+/TCP(sport=1024, dport=2048, flags=0x10, seq=101, ack=201), iface="veth10")
 
 *** DATA
-    sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
-    /TCP(sport=1024, dport=2048, flags=0x10, seq=101, ack=201)/"X", iface="veth10")
+sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
+/TCP(sport=1024, dport=2048, flags=0x10, seq=101, ack=201)/"X", iface="veth10")
 
 *** DATA, ACK
-    sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
-    /TCP(sport=2048, dport=1024, flags=0x10, seq=201, ack=102), iface="veth20")
+sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
+/TCP(sport=2048, dport=1024, flags=0x10, seq=201, ack=102), iface="veth20")
 
 *** FIN, ACK
-    sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
-    /TCP(sport=1024, dport=2048, flags=0x11, seq=102, ack=201), iface="veth10")
+sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
+/TCP(sport=1024, dport=2048, flags=0x11, seq=102, ack=201), iface="veth10")
 
 *** FIN, ACK
-    sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
-    /TCP(sport=2048, dport=1024, flags=0X11, seq=201, ack=103), iface="veth20")
+sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
+/TCP(sport=2048, dport=1024, flags=0X11, seq=201, ack=103), iface="veth20")
 
 *** ACK
-    sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
-    /TCP(sport=1024, dport=2048, flags=0x10, seq=103, ack=202), iface="veth10")
+sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
+/TCP(sport=1024, dport=2048, flags=0x10, seq=103, ack=202), iface="veth10")
 
 * UDP testing commands
 ** Ovs flowtable
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=100, in_port=veth10, actions=output:veth20"
+ovs-ofctl add-flow br0 \
+"table=0, priority=100, in_port=veth10, actions=output:veth20"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=100, in_port=veth20, actions=output:veth10"
+ovs-ofctl add-flow br0 \
+"table=0, priority=100, in_port=veth20, actions=output:veth10"
    
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=-trk, udp, in_port=veth10, actions=ct(table=0)"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=-trk, udp, in_port=veth10, actions=ct(table=0)"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=+trk+new, udp, in_port=veth10, actions=ct(commit),veth20"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+new, udp, in_port=veth10, actions=ct(commit),veth20"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=-trk, udp in_port=veth20, actions=ct(table=0)"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=-trk, udp in_port=veth20, actions=ct(table=0)"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=+trk+est, udp, in_port=veth20, actions=veth10"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+est, udp, in_port=veth20, actions=veth10"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=+trk+est, udp, in_port=veth10, actions=veth20"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+est, udp, in_port=veth10, actions=veth20"
 
 ** Packet send from scapy
-   sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
-   /UDP(sport=1024, dport=2048), iface="veth10")
+sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
+/UDP(sport=1024, dport=2048), iface="veth10")
 	
-   sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
-   /UDP(sport=2048, dport=1024), iface="veth20")
+sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
+/UDP(sport=2048, dport=1024), iface="veth20")
 
 * ICMP testing commands
 ** Ovs flowtable
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=100, in_port=veth10, actions=output:veth20"
+ovs-ofctl add-flow br0 \
+"table=0, priority=100, in_port=veth10,arp, actions=output:veth20"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=100, in_port=veth20, actions=output:veth10"
+ovs-ofctl add-flow br0 \
+"table=0, priority=100, in_port=veth20,arp, actions=output:veth10"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=-trk, icmp, in_port=veth10, actions=ct(table=0)"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=-trk, icmp, in_port=veth10, actions=ct(table=0)"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=+trk+new, icmp, in_port=veth10, actions=ct(commit),veth20"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+new, icmp, in_port=veth10, actions=ct(commit),veth20"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=-trk, icmp in_port=veth20, actions=ct(table=0)"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=-trk, icmp in_port=veth20, actions=ct(table=0)"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=+trk+est, icmp, in_port=veth20, actions=veth10"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+est, icmp, in_port=veth20, actions=veth10"
 
-   ovs-ofctl add-flow br0 \
-   "table=0, priority=200, ct_state=+trk+est, icmp, in_port=veth10, actions=veth20"
+ovs-ofctl add-flow br0 \
+"table=0, priority=200, ct_state=+trk+est, icmp, in_port=veth10, actions=veth20"
    
 ** Packet send from scapy   
 *** Request
-    sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
-    /ICMP(type=8, code=0, id=13989), iface="veth10")
+sendp(Ether()/IP(src="192.168.1.10", dst="192.168.1.20") \
+/ICMP(type=8, code=0, id=13989), iface="veth10")
 
 *** Reply	  
-    sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
-    /ICMP(type=0, code=0, id=13989), iface="veth20")
+sendp(Ether()/IP(src="192.168.1.20", dst="192.168.1.10") \
+/ICMP(type=0, code=0, id=13989), iface="veth20")
+
+* ICMPv6 testing commands
+** Ovs flowtable
+ovs-ofctl add-flow br-int \
+"table=0, priority=100, in_port=veth20,icmp6,icmp_type=133, actions=output:veth10"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=100, in_port=veth10,icmp6,icmp_type=133, actions=output:veth20"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=100, in_port=veth20,icmp6,icmp_type=134, actions=output:veth10"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=100, in_port=veth10,icmp6,icmp_type=134, actions=output:veth20"
    
+ovs-ofctl add-flow br-int \
+"table=0, priority=100, in_port=veth20,icmp6,icmp_type=135, actions=output:veth10"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=100, in_port=veth10,icmp6,icmp_type=135, actions=output:veth20"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=100, in_port=veth20,icmp6,icmp_type=136, actions=output:veth10"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=100, in_port=veth10,icmp6,icmp_type=136, actions=output:veth20"
+   
+ovs-ofctl add-flow br-int \
+"table=0, priority=200, ct_state=-trk, icmp6, in_port=veth10, actions=ct(table=0)"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=200, ct_state=+trk+new, icmp6, in_port=veth10, actions=ct(commit),veth20"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=200, ct_state=-trk, icmp6, in_port=veth20, actions=ct(table=0)"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=200, ct_state=+trk+est, icmp6, in_port=veth20, actions=veth10"
+
+ovs-ofctl add-flow br-int \
+"table=0, priority=200, ct_state=+trk+est, icmp6, in_port=veth10, actions=veth20"
+    
 * Frequency commands
 ** OVS
-   ovs-appctl dpctl/dump-conntrack
+ovs-appctl dpctl/dump-conntrack
+
+ovs-appctl dpctl/flush-conntrack
    
 ** Linux shell
-   # CentOS
-   cat /proc/net/nf_conntrack
+# CentOS
+cat /proc/net/nf_conntrack
 
-   # Cannot be found on CentOS
-   cat /proc/net/ip_conntrack
+# Cannot be found on CentOS
+cat /proc/net/ip_conntrack
 
 ** conntrack-tools
-   # Display
-   conntrack -L
+# Display
+conntrack -L
 
-   conntrack -L -p tcp --dport 34856   
+conntrack -L -p tcp --dport 34856   
 
-   # Display the connection tracking events
-   conntrack -E
+# Display the connection tracking events
+conntrack -E
 
-   # Delete one entry
-   conntrack -D -p tcp --dport 3486
+# Delete one entry
+conntrack -D -p tcp --dport 3486
    
-   # To find more here
-   http://conntrack-tools.netfilter.org/manual.html
+# To find more here
+http://conntrack-tools.netfilter.org/manual.html
 
 * Refrences
 ** OVS Conntrack 指南
-   https://blog.csdn.net/sinat_20184565/article/details/94482558
+https://blog.csdn.net/sinat_20184565/article/details/94482558
 
 ** 使用ct_state 实现出口放行防火墙
-   https://www.llcblog.cn/2020/05/15/ovs-conntrack/
+https://www.llcblog.cn/2020/05/15/ovs-conntrack/
 
 ** OpenStack OVS实现安全组（五）
-   https://www.99cloud.net/10672.html%EF%BC%8F
+https://www.99cloud.net/10672.html%EF%BC%8F
 
 ** OVS实现安全组，你需要知道这些！     
-   https://blog.csdn.net/qq_20817327/article/details/107032223
+https://blog.csdn.net/qq_20817327/article/details/107032223
 
 ** Stateful firewall in OpenFlow based SDN
-   https://zhuanlan.zhihu.com/p/25089778
+https://zhuanlan.zhihu.com/p/25089778
    
 ** 理解TCP sequence和Ack number
-   # 理解TCP序列号（Sequence Number）和确认号（Acknowledgment Number）
-   https://blog.csdn.net/a19881029/article/details/38091243
+# 理解TCP序列号（Sequence Number）和确认号（Acknowledgment Number）
+https://blog.csdn.net/a19881029/article/details/38091243
 

@@ -1,35 +1,35 @@
 #+STARTUP: showall
 
 * Install rdo-packstack on CentOS 7
-
 ** Install rdo
 yum install -y https://rdoproject.org/repos/rdo-release.rpm
    
 yum install -y openstack-packstack
 
-+ Generate common answers
+*** Generate common answers
+packstack --gen-answer-file=answers.txt
 
-  packstack --gen-answer-file=answers.txt
-
-+ or special configurations
-
-  packstack --gen-answer-file=answers.txt \
-  --provision-demo=n \
-  --os-neutron-ovn-bridge-mappings=extnet:br-ex \
-  --os-neutron-ovn-bridge-interfaces=br-ex:enp0s3 \
-  --os-debug-mode=y \
-  --os-cinder-install=n \
-  --os-swift-install=n \
-  --os-ceilometer-install=n \
-  --os-aodh-install=n \
-  --cinder-volumes-create=n \
-  --os-heat-cfn-install=n \
-  --os-neutron-ovn-tunnel-if=enp0s8 \
-  --os-neutron-ovn-tunnel-subnets=192.168.56.0/24 \
-  --os-compute-hosts=192.168.56.107,192.168.56.108
+*** or special configurations
+packstack --gen-answer-file=answers.txt \
+--provision-demo=n \
+--os-neutron-ovn-bridge-mappings=extnet:br-ex \
+--os-neutron-ovn-bridge-interfaces=br-ex:enp0s3 \
+--os-debug-mode=y \
+--os-cinder-install=n \
+--os-swift-install=n \
+--os-ceilometer-install=n \
+--os-aodh-install=n \
+--cinder-volumes-create=n \
+--os-heat-cfn-install=n \
+--os-neutron-ovn-tunnel-if=enp0s8 \
+--os-neutron-ovn-tunnel-subnets=192.168.56.0/24 \
+--os-compute-hosts=192.168.56.107,192.168.56.108
    
-  packstack --answer-file=answers.txt
+packstack --answer-file=answers.txt
    
+*** Ovs back end
+packstack --allinone --os-neutron-l2-agent=openvswitch --os-neutron-ml2-mechanism-drivers=openvswitch --os-neutron-ml2-tenant-network-types=vxlan --os-neutron-ml2-type-drivers=vxlan,flat --provision-demo=n --os-neutron-ovs-bridge-mappings=extnet:br-ex --os-neutron-ovs-bridge-interfaces=br-ex:eth0
+
 * Compile OVS on CentOS 7
 ** Before compile
 yum install make gcc curl wget vim openssl-devel autoconf automake rpm-build libtool redhat-rpm-config python-devel openssl-devel kernel-devel kernel-debug-devel gcc-c++ unbound-devel unbound python-sphinx
@@ -169,7 +169,11 @@ goto_table:60
 pop_vlan
 
 ** ovs-vsctl
+ovs-vsctl get Open_vSwitch . Other_config
+
 ovs-vsctl set Open_vSwitch . Other_config:hw-offload=true
+
+ovs-vsctl set Open_vSwitch . other_config:vlan-limit=2
 
 *** Add ovs bridge
 ovs-vsctl add-br br0 -- set Bridge br0 fail-mode=secure
@@ -194,6 +198,8 @@ ovs-vsctl set-controller br0 tcp:11.251.96.22:6633
 ovs-vsctl set open . external-ids:ovn-encap-ip=10.0.0.10
 
 ovs-vsctl set open . external-ids:ovn-encap-type=stt
+
+ovn-sbctl lflow-list
     
 ** ovs-appctl
 ovs-appctl dpif/show
@@ -294,12 +300,31 @@ git checkout $latest_tag
 
 docker build -t faucet/faucet -f Dockerfile.faucet .
 
+* Scripts
+** look
+while [ 1 ]
+do
+  clear
+
+  for tb in $1;
+  do
+    echo " [TABLE: $tb]"
+    if [ ! -n "$2" ];
+    echo " -------- INT --------"
+    then
+      ovs-ofctl dump-flows br-int table=$tb;
+    else
+      ovs-ofctl dump-flows br-int table=$tb | $2;
+    fi
+    echo ""
+  done
+
+  sleep 1
+done
+
 * Refs
 ** OpenStack Neutron 中的 DVR 简介与 OVS 流表分析
 https://www.ibm.com/developerworks/cn/cloud/library/1509_xuwei_dvr/
-
-** Open vSwitch Firewall Driver
-https://docs.openstack.org/neutron/latest/contributor/internals/openvswitch_firewall.html
 
 ** dist-docs
 http://www.openvswitch.org/support/dist-docs/
@@ -315,4 +340,14 @@ https://www.cnblogs.com/sammyliu/p/4658746.html
 
 ** Open vSwitch Firewall Driver
 https://docs.openstack.org/neutron/latest/contributor/internals/openvswitch_firewall.html
+
+** 控制器比較
+https://aptira.com/comparison-of-software-defined-networking-sdn-controllers-part-1-introduction/
+
+** 命令集
+https://docs.pica8.com/pages/viewpage.action?pageId=3084110
+
+** OVN pipline
+https://www.mankier.com/7/ovn-architecture#Description-OVN_Deployments_Interconnection
+
 

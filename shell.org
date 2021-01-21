@@ -2,43 +2,33 @@
 #+STARTUP: showall
 
 * How to print in journalctl
-  + systemd-cat  Connect a pipeline or program's output with the journal
-#+BEGIN_SRC sh
++ systemd-cat  Connect a pipeline or program's output with the journal
 
 printf "hi" | systemd-cat
 
-#+END_SRC
-
 * How to read ini config file
-
-#+BEGIN_SRC sh
 GetKey(){
-    section=$1
-    key=$2
-    #使用正则表达是获取key所对应的value
-    sed -n "/\[$section\]/,/\[.*\]/{
-      /^\[.*\]/d
-      /^[ \t]*$/d
-      /^$/d
-      /^#.*$/d
-      s/^[ \t]*$key[ \t]*=[ \t]*\(.*\)[ \t]*/\1/p
-    }" file_name
+section=$1
+key=$2
+#使用正则表达是获取key所对应的value
+sed -n "/\[$section\]/,/\[.*\]/{
+/^\[.*\]/d
+/^[ \t]*$/d
+/^$/d
+/^#.*$/d
+s/^[ \t]*$key[ \t]*=[ \t]*\(.*\)[ \t]*/\1/p
+}" file_name
 }
 
 GetKey $section $key
-#+END_SRC
 
 * How to write txt file
-#+BEGIN_SRC 
 cat >/tmp/intf.xml <<EOF
 hi
 EOF
-#+END_SRC
 
-#+BEGIN_SRC sh
 awk 是很实用的文本处理命令，print 到后带的是你要获取第几列，sed -n 是指定第几行。
 ls -l | awk '{print $5}' | sed -n '2p'
-#+END_SRC
 
 * Find the
 | 符号 | 含义                                                                 |
@@ -48,40 +38,131 @@ ls -l | awk '{print $5}' | sed -n '2p'
 | [-]  | 表示在编码顺序内的所有字符。例如[1-7]表示有个字符，范围1到7其中一个  |
 | [^]  | 表示反f向选择。例如表示有一个字符，只要不是a,b,c的其他字符都可以     |
 
-
-
 * Time duration
-#+BEGIN_SRC shell
-  #!/bin/sh
+#!/bin/sh
 
-  date +"%T.%N"
-  ping 127.0.0.1 -c 4
-  date +"%T.%N"
-#+END_SRC
+date +"%T.%N"
+ping 127.0.0.1 -c 4
+date +"%T.%N"
 
 * Loop
-  for vm in $(virsh list | grep running | awk {'print $2'}); do echo $vm; virsh domiflist $vm; done
+for tb in 10 20;
+do
+  echo $tb
+done
+
+* while
+while [ $i -le 100 ]
+do
+  let sum=sum+$i
+  let i++
+done
 
 * brctl  
-  brctl showmacs br0
+brctl showmacs br0
 
 * Name space
-  ip netns add ns10
+ip netns add ns10
   
-  ip link set eth10 netns ns10
+ip link set eth10 netns ns10
 
-  ip netns exec ns10 bash
+ip netns exec ns10 bash
   
 * CentOS Update yum repo
-   + For x86
-   
-   curl https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo > /etc/yum.repos.d/CentOS-Base.repo
+*** For x86
+curl https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo > /etc/yum.repos.d/CentOS-Base.repo
 
-   + or for Aarch64
-   
-   curl https://mirrors.huaweicloud.com/repository/conf/CentOS-AltArch-7.repo > /etc/yum.repos.d/CentOS-Base.repo
+yum clean all && yum makecache
 
-   yum clean all
+*** For Aarch64
+curl https://mirrors.huaweicloud.com/repository/conf/CentOS-AltArch-7.repo > /etc/yum.repos.d/CentOS-Base.repo
 
-   yum makecache
+yum clean all && yum makecache
+
+* docker commands
+** image operations
+docker pull centos:7.9.2009
+
+docker images
+
+docker rmi 218b8335b7b0
    
+** container oprations   
+docker run -itd centos bash
+
+docker run --name d1 -itd --privileged=true 8652 init
+   
+docker run -itd --name="centos7" --privileged=true centos:7 /usr/sbin/init
+   
+docker exec -it a0 bash
+   
+docker ps -a
+  
+docker stop 47d478b8dcbf
+  
+docker rm 47d478b8dcbf
+
+docker run --name dpf0 -itd --privileged=true 8652 init
+docker run --name dpf1 -itd --privileged=true 8652 init
+
+pipework br-int -l pf0 dpf0 100.1.1.10/24 00:11:11:11:11:11
+pipework br-int -l pf1 dpf1 100.1.1.20/24 00:22:22:22:22:22
+
+** proxy
+/etc/systemd/system/docker.service.d/http-proxy.conf
+
+[Service]
+Environment="HTTP_PROXY=http://proxy.example.com:80"
+Environment="HTTPS_PROXY=https://proxy.example.com:443"
+Environment="NO_PROXY=localhost,127.0.0.1,docker-registry.example.com,.corp"
+   
+sudo systemctl daemon-reload
+
+sudo systemctl restart docker
+   
+* qemu
+qemu-img info vm.qcow2
+
+qemu-img resize vm.qcow2 +10G
+
+* vlan
+ip link add link veth0 name veth0.160 type vlan id 160
+
+ifconfig eth0 hw ether MAC
+
+ip addr add 100.1.1.1/24 dev bond.351
+
+ip link add veth0 type veth peer name veth1
+  
+iptables -I INPUT -p tcp -m tcp -j ACCEPT  
+
+* mininet
+** GUI design
+./mininet/examples/miniedit.py
+
+* pipework   
+git clone https://github.com/jpetazzo/pipework
+
+cp pipework/pipework /bin
+
+docker run -itd --name con1 ubuntu:14.04 /bin/bash
+
+pipework br-int dpf0 100.1.1.10/24
+
+pipework mac:<hostinterface_macaddress> [-i containerinterface] [-l localinterfacename]
+[-a addressfamily] <guest> <ipaddr>/<subnet>[@default_gateway] [macaddr][@vlan]
+  
+pipework br-int -l pf0 dpf0 100.1.1.10/24 00:11:11:11:11:11
+  
+* 时间同步
+systemctl start chronyd
+
+宿主内要装好keepalived, modprobe ip_vs
+
+* keepalived
+keepalived -f /home/hyper/ns10.conf \
+           -p /var/run/keepalivedns10.pid \
+           -r /var/run/keepalivedns10.pid \
+           -c /var/run/keepalivedns10.pid \
+           -s ns10
+  
