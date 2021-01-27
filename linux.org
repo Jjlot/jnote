@@ -1,0 +1,174 @@
+#+STARTUP: showall
+
+* Docker
+** Image
+docker pull centos:7.9.2009
+
+docker images
+
+docker rmi 218b8335b7b0
+   
+** Container
+docker run -itd centos bash
+   
+docker run -itd --name="centos7" --privileged=true centos:7 /usr/sbin/init
+   
+docker exec -it a0 bash
+   
+docker ps -a
+  
+docker stop 47d478b8dcbf
+  
+docker rm 47d478b8dcbf
+
+pipework br-int -l pf0 dpf0 100.1.1.10/24 00:11:11:11:11:11
+
+** Proxy between Docker daemon and the Internet
+#+begin_src shell
+  mkdir -p /etc/systemd/system/docker.service.d
+
+  cat > /etc/systemd/system/docker.service.d/http-proxy.conf << EOF
+  [Service]
+  Environment="HTTP_PROXY=http://your.proxy:8080"
+  Environment="HTTPS_PROXY=http://your.proxy:8080"
+  Environment="NO_PROXY=127.0.0.1,localhost
+  EOF
+
+  systemctl daemon-reload
+  systemctl restart docker
+#+end_src
+
+** Ipv6
+Edit /etc/docker/daemon.json, set the ipv6 key to true and the fixed-cidr-v6 key to your IPv6 subnet. In this example we are setting it to 2001:db8:1::/64.
+
+#+begin_src json
+  {
+      "ipv6": true,
+      "fixed-cidr-v6": "2001:db8:1::/64"
+  }
+#+end_src
+
+Save the file.
+
+Reload the Docker configuration file.
+
+#+begin_src shell
+  systemctl reload docker
+#+end_src
+
+* CentOS yum repo
+*** For x86
+curl https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo > /etc/yum.repos.d/CentOS-Base.repo
+
+yum clean all && yum makecache
+
+*** For Aarch64
+curl https://mirrors.huaweicloud.com/repository/conf/CentOS-AltArch-7.repo > /etc/yum.repos.d/CentOS-Base.repo
+
+yum clean all && yum makecache
+
+* Ip
+** Address
+ip addr add 100.1.1.1/24 dev eth0
+
+ip addr del 100.1.1.1/24 dev eth0
+
+ip addr add 2001::10/64 dev eth0
+
+ip addr del 2001::10/64 dev eth0
+
+ifconfig eth0 inet6 del fe80::c160:cd99:cf48:c7fd/64
+
+** Mac modify
+ifconfig eth0 hw ether 00:11:11:11:11:11
+
+** Namespace
+ip netns add ns10
+  
+ip link set eth10 netns ns10
+
+ip netns exec ns10 bash
+
+** Veth
+ip link add veth0 type veth peer name veth1
+
+** Vlan
+ip link add link veth0 name veth0.160 type vlan id 160
+
+* Iptables
+iptables -I INPUT -p tcp -m tcp -j ACCEPT
+
+* brctl  
+brctl addbr br0
+
+brctl addif br0 veth0
+
+brctl show
+
+brctl showmacs br0
+
+* pipework   
+git clone https://github.com/jpetazzo/pipework
+
+cp pipework/pipework /bin
+
+docker run -itd --name con1 ubuntu:14.04 /bin/bash
+
+pipework br-int dpf0 100.1.1.10/24
+
+pipework mac:<hostinterface_macaddress> [-i containerinterface] [-l localinterfacename]
+[-a addressfamily] <guest> <ipaddr>/<subnet>[@default_gateway] [macaddr][@vlan]
+  
+pipework br-int -l pf0 dpf0 100.1.1.10/24 00:11:11:11:11:11
+
+* Keepalived
+keepalived -f /home/hyper/ns10.conf \
+           -p /var/run/keepalivedns10.pid \
+           -r /var/run/keepalivedns10.pid \
+           -c /var/run/keepalivedns10.pid \
+           -s ns10
+
+宿主内要装好keepalived, modprobe ip_vs  
+
+* Wifi
+** Tools
+nmtui
+
+* Dhcp
+** Forget ipv6
+/var/lib/dhclient/dhclient6.leases
+
+* Mininet
+** GUI design
+./mininet/examples/miniedit.py
+
+* Qemu
+qemu-img info vm.qcow2
+
+qemu-img resize vm.qcow2 +10G
+
+* Date
+** Time duration
+#+begin_src shell
+  date +"%T.%N"
+  ping 127.0.0.1 -c 4
+  date +"%T.%N"
+#+end_src
+
+* Cat
+#+begin_src shell
+  cat >/tmp/intf.xml <<EOF
+  hi
+  EOF
+#+end_src
+
+* awk
+awk 是很实用的文本处理命令，print 到后带的是你要获取第几列，sed -n 是指定第几行。
+ls -l | awk '{print $5}' | sed -n '2p'
+
+* systemd-cat
+systemd-cat  Connect a pipeline or program's output with the journal
+#+begin_src shell
+  printf "hi" | systemd-cat
+#+end_src
+
