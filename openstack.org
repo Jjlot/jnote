@@ -1,0 +1,91 @@
+#+STARTUP: showall
+
+* Openstack
+** Openstack create user
+openstack project create jing
+
+openstack user create --password-prompt jing
+
+openstack role add --project jing --user jing _member_
+
+cp keystonerc_admin keystonerc_jing
+
+* Neutron
+** router
+neutron router-gateway-set jing-router ext-net
+
+** net
+neutron net-create ext-net --shared --router:external=True
+
+** subnet
+neutron subnet-create ext-net --name ext-subnet --allocation-pool start=10.0.2.20,end=10.0.2.50 --enable-dhcp --gateway 10.0.2.2 10.0.2.0/24
+
+** ipv6-qos
+neutron router-create jing-router
+
+neutron net-create jing-net
+
+neutron subnet-create jing-net 1777::/64 -f value -c id --name jing-subnet --ip-version 6
+
+neutron router-interface-add jing-router jing-subnet
+
+neutron qos-policy-create jing-20M
+
+neutron qos-bandwidth-limit-rule-create jing-20M --max-kbps 20480 --max-burst-kbps 20480 --direction egress
+
+neutron qos-bandwidth-limit-rule-create jing-20M --max-kbps 20480 --max-burst-kbps 20480 --direction ingress
+
+neutron ipv6-ns-qos-policy-create --router-id 3fc45648-a1ae-4452-ad18-35449ce8e89f --port-id 948039f7-2b8f-44c8-a559-0f8b5bf24d63 --qos-policy-id b8489c40-7e48-4d72-90ee-8d6e364b50a0
+
+neutron qos-policy-create jing-30M
+
+neutron qos-bandwidth-limit-rule-create jing-30M --max-kbps 30720 --max-burst-kbps 30720 --direction egress
+
+neutron qos-bandwidth-limit-rule-create jing-30M --max-kbps 30720 --max-burst-kbps 30720 --direction ingress
+
+neutron ipv6-ns-qos-policy-update --qos-policy-id 085ee6c0-d36f-4a98-9458-d9e05bad7733 fa7b69cf-6b07-4609-9078-48e6bb41b0e3
+
+** Security-group
+neutron security-group-create sg-all
+
+neutron security-group-create sg1
+
+neutron security-group-rule-create 6f01fb7b-9d10-479c-9078-4e5f6e17a66e --direction egress --protocol ICMP --remote-ip-prefix 100.1.1.0/24
+
+neutron security-group-rule-create 6f01fb7b-9d10-479c-9078-4e5f6e17a66e --direction ingress --protocol ICMP --remote-ip-prefix 100.1.1.0/24
+
+nova list
+
+nova list-secgroup jing-vm-75
+
+nova add-secgroup jing-vm-75 sg1
+
+** Firewall
+neutron firewall-policy-create jing-fw-policy
+
+neutron firewall-rule-create --name jing-fw-rule-1 --source-ip-address 177.1.1.0/24 --destination-ip-address 178.1.1.0/24 --protocol icmp --action deny
+
+neutron firewall-policy-insert-rule cddf7aab-0d8f-4f5f-b186-6c469004498f cee007b2-7a98-4def-87f2-c429be6cb92e
+   
+neutron firewall-create --name jing-fw --router 92119a13-e2cd-44f1-a5e6-848285e326b8 cee007b2-7a98-4def-87f2-c429be6cb92e
+
+
+* Nova
+** nova boot
+neutron router-create jing-router
+    
+neutron net-create jing-net
+
+neutron subnet-create jing-net 100.1.1.0/24 -f value -c id --name jing-subnet
+
+neutron router-interface-add jing-router jing-subnet
+
+nova boot --image centos --flavor m1.small --nic net-name=jing-net jing-vm4
+
+* Glance
+** image-create
+curl -L http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img | glance \
+image-create --name='cirros' --visibility=public --container-format=bare --disk-format=qcow2
+
+openstack image create "cirros" --file /home/cirros-0.5.1-aarch64-disk.img --disk-format qcow2 --public
+

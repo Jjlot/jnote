@@ -30,6 +30,21 @@ packstack --answer-file=answers.txt
 *** Ovs back end
 packstack --allinone --os-neutron-l2-agent=openvswitch --os-neutron-ml2-mechanism-drivers=openvswitch --os-neutron-ml2-tenant-network-types=vxlan --os-neutron-ml2-type-drivers=vxlan,flat --provision-demo=n --os-neutron-ovs-bridge-mappings=extnet:br-ex --os-neutron-ovs-bridge-interfaces=br-ex:eth0
 
+*** Base test
+neutron router-create jing-router
+    
+neutron net-create jing-net
+
+neutron subnet-create jing-net 100.1.1.0/24 -f value -c id --name jing-subnet
+
+neutron router-interface-add jing-router jing-subnet
+
+nova boot --image cirros --flavor m1.tiny --nic net-name=jing-net jing-vm
+
+wget http://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-disk.img
+
+openstack image create "cirros" --file cirros-0.5.1-x86_64-disk.img --disk-format qcow2 --container-format bare --public
+
 * Compile OVS on CentOS 7
 ** Before compile
 yum install make gcc curl wget vim openssl-devel autoconf automake rpm-build libtool redhat-rpm-config python-devel openssl-devel kernel-devel kernel-debug-devel gcc-c++ unbound-devel unbound python-sphinx
@@ -174,6 +189,9 @@ ovs-vsctl get Open_vSwitch . Other_config
 ovs-vsctl set Open_vSwitch . Other_config:hw-offload=true
 
 ovs-vsctl set Open_vSwitch . other_config:vlan-limit=2
+
+*** Modify dpid
+ovs-vsctl set bridge br0 other-config:datapath-id=0000000000000002
 
 *** Add ovs bridge
 ovs-vsctl add-br br0 -- set Bridge br0 fail-mode=secure
@@ -351,3 +369,11 @@ https://docs.pica8.com/pages/viewpage.action?pageId=3084110
 https://www.mankier.com/7/ovn-architecture#Description-OVN_Deployments_Interconnection
 
 
+* Ovn services
+systemctl restart openvswitch
+
+systemctl restart ovn-northd
+
+systemctl restart ovn-controller
+
+systemctl restart rabbitmq-server

@@ -1,0 +1,54 @@
+#+STARTUP: showall
+
+* Support geneve on centos7-aarch
+get raspberry source from https://github.com/raspberrypi/linux
+
+generate default config for pi 4
+#+BEGIN_SRC shell
+  KERNEL=kernel7l
+  make bcm2711_defconfig
+#+END_SRC
+
+timedatectl set-timezone Asia/Shanghai
+
+The kernel config file is now saved as a module so use 
+sudo modprobe configs
+
+which will create file /proc/config.gz. Then in your kernel source directory use command
+
+zcat /proc/config.gz > .config
+
+arch/arm64/kernel/vdso/vdso.so.dbg
+
+make modules SUBDIRS=drivers/net/
+
+yum install -y scl-utils install gcc make flex bison openssl-devel ncurses-devel rpm-build git
+
+rpmbuild -bb --target aarch64 --nodeps ~/rpmbuild/SPECS/raspberrypi2.spec
+
+CentOS如何开机自动加载module
+
+error: impossible constraint in 'asm'
+
+https://people.centos.org/pgreco/rpi_aarch64_el8/
+
+https://people.centos.org/pgreco/rpi_aarch64_el8/20200823025407/
+
+
+* raspberry start vm
+#+BEGIN_SRC shell
+  virt-install --name=vvm-raw \
+               --disk path=/home/CentOS-Userland-7-aarch64-generic-Minimal-2009-sda.raw,sparse=true,cache=none,bus=virtio,format=raw \
+               --vcpus=2 \
+               --ram=2048 \
+               --network bridge=br0,model=virtio \
+               --boot hd \
+               --os-type=linux
+#+END_SRC
+
+* nova
+應該改 nova.conf
+將 [libvirt] 內的
+cpu_mode 改成 host-passthrough
+
+

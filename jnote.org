@@ -1,3 +1,5 @@
+#+STARTUP: showall
+
 * How to config samba
 
 https://www.jianshu.com/p/44330c22f040
@@ -29,3 +31,12 @@ git config --global user.email jingran84@163.com
 * Disable centos hotkey
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left "[]"
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "[]"
+
+* valgrind
+内存泄漏检测工具
+
+
+* links
+** openvswitch实现arp代答和icmp代答
+https://blog.csdn.net/yuyin1018/article/details/106720530
+
