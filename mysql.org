@@ -1,0 +1,29 @@
+#+STARTUP: showall
+#+OPTIONS: ^:nil
+
+
+* SQL
+** Select
+select * from ports limit 1;
+
+select * from networks where name like 'jing%';
+
+select device_id from ports where device_owner = 'network:floatingip' order by device_id;
+
+select count(*) from floatingips;
+
+** Update
+UPDATE floatingips SET fixed_port_id = 'NULL', fixed_ip_address = 'NULL', router_id = 'NULL' where fixed_port_id = '3bb7e43f-e5cc-44f9-8800-77c4a9e5d9d4';
+
+** Insert
+insert into natgateway_bypass (nat_gateway_id, fips) values ('123456', '100.1.1.1');
+
+INSERT INTO table_name ( field1, field2,...fieldN ) VALUES ( value1, value2,...valueN );
+
+* Generic
+** version
+select version()
+
+** Gui tools
+HeidiSQL
+
