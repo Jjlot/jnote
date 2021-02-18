@@ -341,3 +341,14 @@ EOF
 * Date
 timedatectl set-timezone Asia/Shanghai
 
+* Guestfish
+** how-to-set-root-password-of-centos-7
+yum install libguestfs-tools
+
+openssl passwd -1 password
+
+guestfish --rw -a /var/lib/libvirt/images/CentOS-7-x86_64-GenericCloud-1907.qcow2
+
+https://www.linuxcnf.com/2019/11/how-to-set-root-password-of-centos-7.html
+
+https://www.cnblogs.com/BuildingHome/p/4834859.html

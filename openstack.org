@@ -89,3 +89,6 @@ image-create --name='cirros' --visibility=public --container-format=bare --disk-
 
 openstack image create "cirros" --file /home/cirros-0.5.1-aarch64-disk.img --disk-format qcow2 --public
 
+** image-download
+glance image-download --file /home/jing/centos.qcow2 7a43bc07-0927-4d6b-8a00-7f1bcd1a7c2c
+

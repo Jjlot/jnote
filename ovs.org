@@ -213,6 +213,37 @@ ovs-vsctl add-port br-ex ovn-7788 -- set interface ovn-7788 type=geneve options:
 ovs-vsctl set-controller br0 tcp:11.251.96.22:6633
    
 ** ovn commands   
+OVN实践
+https://blog.csdn.net/weixin_30511107/article/details/99916423
+
+ovn-sbctl list SB_Global
+
+ovn-sbctl list Chassis
+
+ovn-sbctl list Encap
+
+ovn-sbctl list Multicast_Group
+
+ovn-sbctl list Datapath_Binding
+
+ovn-sbctl list Port_Binding
+
+ovn-sbctl list MAC_Binding
+
+ovn-sbctl list Address_Set
+
+ovn-sbctl list Connection
+
+ovn-sbctl list SSL
+
+ovn-sbctl list DHCP_Options
+
+ovn-sbctl list DHCPv6_Options
+
+ovn-sbctl lflow-list
+
+ovn-sbctl list Logical_Flow
+
 ovs-vsctl set open . external-ids:ovn-encap-ip=10.0.0.10
 
 ovs-vsctl set open . external-ids:ovn-encap-type=stt
