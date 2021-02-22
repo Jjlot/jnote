@@ -255,16 +255,34 @@ ovs-appctl dpif/show
 
 ovs-appctl ofproto/trace br0 in_port=3,tcp,nw_src=192.0.2.2,tcp_dst=22
 
-ovs-appctl bridge/dump-flows br0
-
 *** Dump flows
 ovs-appctl dpctl/dump-flows -m
+
+*** Dump flows include hidden flows
+ovs-appctl bridge/dump-flows br-int
 
 *** Tracking
 ovs-appctl dpctl/dump-conntrack
 
 ovs-appctl dpctl/flush-conntrack
     
+*** Diable megaflow
+ovs-appctl upcall/disable-megaflows
+
+*** 
+ovs-appctl memory/show
+
+*** Port stats
+ovs-appctl dpctl/show -s
+
+*** Upcall
+ovs-appctl upcall/show
+
+ovs-appctl upcall/set-flow-limit 10000
+
+** ovsdb-tool
+ovsdb-tool -mm show-log /etc/openvswitch/conf.db
+
 ** ovs-dpctl
 ovs-dpctl show
 
@@ -399,6 +417,14 @@ https://docs.pica8.com/pages/viewpage.action?pageId=3084110
 ** OVN pipline
 https://www.mankier.com/7/ovn-architecture#Description-OVN_Deployments_Interconnection
 
+** OpenVSwitch实现浅谈
+https://zhuanlan.zhihu.com/p/66216907
+https://zhuanlan.zhihu.com/p/66321252
+https://zhuanlan.zhihu.com/p/66561734
+https://zhuanlan.zhihu.com/p/66810603
+
+** OVS cheat sheet 
+https://gist.github.com/djoreilly/c5ea44663c133b246dd9d42b921f7646
 
 * Ovn services
 systemctl restart openvswitch

@@ -208,7 +208,7 @@ ovs-ofctl add-flow br-int \
 ovs-appctl dpctl/dump-conntrack
 
 ovs-appctl dpctl/flush-conntrack
-   
+
 ** Linux shell
 # CentOS
 cat /proc/net/nf_conntrack

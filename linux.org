@@ -56,6 +56,15 @@ Reload the Docker configuration file.
   systemctl reload docker
 #+end_src
 
+* Quagga
+yum install quagga
+
+systemctl start zebra
+
+vtysh
+
+telnet 127.0.0.1 2601
+
 * CentOS yum repo
 *** For x86
 curl https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo > /etc/yum.repos.d/CentOS-Base.repo
