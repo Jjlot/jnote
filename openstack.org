@@ -48,17 +48,15 @@ neutron ipv6-ns-qos-policy-update --qos-policy-id 085ee6c0-d36f-4a98-9458-d9e05b
 ** Security-group
 neutron security-group-create sg-all
 
-neutron security-group-create sg1
+neutron security-group-rule-create sg-all --direction egress
 
-neutron security-group-rule-create 6f01fb7b-9d10-479c-9078-4e5f6e17a66e --direction egress --protocol ICMP --remote-ip-prefix 100.1.1.0/24
-
-neutron security-group-rule-create 6f01fb7b-9d10-479c-9078-4e5f6e17a66e --direction ingress --protocol ICMP --remote-ip-prefix 100.1.1.0/24
+neutron security-group-rule-create sg-all --direction ingress --remote-ip-prefix 0.0.0.0/0
 
 nova list
 
-nova list-secgroup jing-vm-75
+nova list-secgroup jing-vm1
 
-nova add-secgroup jing-vm-75 sg1
+nova add-secgroup jing-vm1 sg-all
 
 ** Firewall
 neutron firewall-policy-create jing-fw-policy
@@ -68,7 +66,6 @@ neutron firewall-rule-create --name jing-fw-rule-1 --source-ip-address 177.1.1.0
 neutron firewall-policy-insert-rule cddf7aab-0d8f-4f5f-b186-6c469004498f cee007b2-7a98-4def-87f2-c429be6cb92e
    
 neutron firewall-create --name jing-fw --router 92119a13-e2cd-44f1-a5e6-848285e326b8 cee007b2-7a98-4def-87f2-c429be6cb92e
-
 
 * Nova
 ** nova boot
