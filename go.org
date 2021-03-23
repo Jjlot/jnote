@@ -1,0 +1,16 @@
+#+STARTUP: showall
+
+
+* Env
+** base
+yum install golang
+
+go build main.go
+
+you can remove the symbol and debug info with go build -ldflags "-s -w"
+
+** Install package (maybe)
+go get github.com/google/gopacket
+
+
+
