@@ -1,5 +1,6 @@
 #+STARTUP: showall
 
+
 * Docker
 ** Image
 docker pull centos:7.9.2009
@@ -426,7 +427,7 @@ cat encrypted.file | openssl enc -A -base64
 
 openssl rsautl -decrypt -in encrypted.file -inkey key.pem -out decrypted.file
 
-* vsftpd
+* Deploy vsftpd on CentOS
 yum install ftp vsftpd -y
 
 cp /etc/vsftpd/vsftpd.conf /etc/vsftpd/vsftpd.conf.default
@@ -452,3 +453,43 @@ systemctl enable vsftpd
 systemctl start vsftpd
 
 * sed
+
+* lsof
+** Unix socket
+lsof -U
+
+** List all the network connections
+lsof -i
+
+** 显示IP地址非url
+lsof -n
+
+** 显示port非name
+lsof -P
+
+** Find IPv4 /IPv6 Socket file
+lsof -i@100.1.1.1
+
+** List all Process or Commands that belongs to a Process I
+lsof -p 2842
+
+** List all open files under a specific directory
+lsof +D /var/log/
+
+** Combine more list options using OR/AND
+*** -p or -U
+lsof -p 4667 -U
+
+*** -p and -U
+lsof -p 4667 -U a
+
+** Full command name
+lsof +c0
+
+** 依据进程名查看
+lsof -c mysql
+
+* kill
+kill -9 `ps aux | grep neutron-server`
+
+

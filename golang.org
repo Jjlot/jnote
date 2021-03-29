@@ -9,6 +9,12 @@ go build main.go
 
 you can remove the symbol and debug info with go build -ldflags "-s -w"
 
+/root/go/src/github.com
+
+C:\Users\rjing\sdk\go1.16.2\src\github.com
+
+https://play.golang.org/
+
 ** Install package (maybe)
 go get github.com/google/gopacket
 

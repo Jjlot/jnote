@@ -43,3 +43,6 @@ https://blog.csdn.net/yuyin1018/article/details/106720530
 * EVPN技术介绍
 http://www.h3c.com/cn/d_201811/1131079_30005_0.htm
 
+* Centaur Emacs
+** Windows剪贴板粘贴中文乱码
+(set-clipboard-coding-system 'euc-cn)

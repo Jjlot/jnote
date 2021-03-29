@@ -27,3 +27,7 @@ select version()
 ** Gui tools
 HeidiSQL
 
+** 远程登陆mysql
+mysql -uroot -p -h10.154.0.43 -P3341
+
+
