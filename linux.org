@@ -453,6 +453,19 @@ systemctl enable vsftpd
 systemctl start vsftpd
 
 * sed
+** Command sample
+sed -i 's/shanghai/nanjing/g' input.json
+
+sed '/shanghai2/a2' input.json
+
+** Explain
+-i：直接对内容进行修改，不加-i时默认只是预览，不会对文件做实际修改
+
+s: 替换  替换掉匹配的内容
+
+a: 追加  向匹配行后面插入内容
+
+d: 删除  删除匹配的内容
 
 * lsof
 ** Unix socket
