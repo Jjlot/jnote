@@ -1,6 +1,5 @@
 #+STARTUP: showall
 
-
 * Docker
 ** Image
 docker pull centos:7.9.2009
@@ -39,7 +38,7 @@ pipework br-int -l pf0 dpf0 100.1.1.10/24 00:11:11:11:11:11
   systemctl restart docker
 #+end_src
 
-** Ipv6
+** Enable ipv6
 Edit /etc/docker/daemon.json, set the ipv6 key to true and the fixed-cidr-v6 key to your IPv6 subnet. In this example we are setting it to 2001:db8:1::/64.
 
 #+begin_src json
@@ -387,6 +386,14 @@ iptables -nL -t nat
 * systemctl
 systemctl is-active neutron-server
 
+systemctl --system daemon-reload
+
+ntsysv
+
+/etc/systemd/system
+
+//usr/lib/systemd/system/
+
 * sysctl
 sysctl net.ipv4.ip_forward
 
@@ -427,7 +434,7 @@ cat encrypted.file | openssl enc -A -base64
 
 openssl rsautl -decrypt -in encrypted.file -inkey key.pem -out decrypted.file
 
-* Deploy vsftpd on CentOS
+* Deploy vsftpd on CentOS (Need to rewrite the sed commands with sed comment below)
 yum install ftp vsftpd -y
 
 cp /etc/vsftpd/vsftpd.conf /etc/vsftpd/vsftpd.conf.default
@@ -467,6 +474,12 @@ a: 追加  向匹配行后面插入内容
 
 d: 删除  删除匹配的内容
 
+** Comment
+sed -i '/2001/s/^/#/g' file
+
+** Uncomment
+sed -i '/2001/s/^#//g' file
+
 * lsof
 ** Unix socket
 lsof -U
@@ -504,5 +517,32 @@ lsof -c mysql
 
 * kill
 kill -9 `ps aux | grep neutron-server`
+
+* ssh
+** SSH免密 (client operations)
+*** 客户端生成公私钥(~/.ssh)
+ssh-keygen
+
+*** 上传公钥到服务器(~/.ssh/authorized_keys)
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.235.22
+
+** SSH tunnel via multiple hops
+*** Direct command
+ssh -J jumpuser1@jumphost1,jumpuser2@jumphost2,...,jumpuserN@jumphostN user@host
+
+*** Via configuration
+Add this to your ~/.ssh/config (see man 5 ssh_config for details):
+
+Host host2
+  ProxyCommand ssh host1 -W %h:%p
+
+Then ssh host2 will automatically tunnel through host1
+
+* ps
+** Show threads
+ps -L [pid]
+
+** Show processes in a hierarchy
+ps aux --forest
 
 

@@ -2,41 +2,54 @@
 
 * Emacs
 ** copy / Cut & Paste in emacs
-   C-@ or C-SPACE (Select)
-   M-w (Copy)
-   C-w (Cut)
-   C-y (Paste)
+C-@ or C-SPACE (Select)
+
+M-w (Copy)
+
+C-w (Cut)
+
+C-y (Paste)
   
 ** Add / del breakpoint in gdb mode
-  C-x C-a C-b (Add breakpoint)
-  C-x C-a C-d (Delete breakpoint)
+C-x C-a C-b (Add breakpoint)
+
+C-x C-a C-d (Delete breakpoint)
   
 ** Python
-  C-c p (Open python panel)
-  C-c c (Run python)
+C-c p (Open python panel)
+
+C-c c (Run python)
   
 ** Window resize
-  C-x ^ (Enlarge-window)
-  C-x } (Enlarge-window-horizontally)
-  C-x { (Shrink-window-horizontally)
+C-x ^ (Enlarge-window)
+
+C-x } (Enlarge-window-horizontally)
+
+C-x { (Shrink-window-horizontally)
   
 ** Change the status of todo-list
-  C-c C-t (org-todo)
+C-c C-t (org-todo)
   
 ** High-light
-  M-s h . (highlight-symbol at point)
-  C-f8 (highlight-symbol)
-  f8 (highlight-symbol next)
-  S-f8 (highlight-symbol previous)
-  
-** Emacs org-mode
+M-s h . (highlight-symbol at point)
+
+C-f8 (highlight-symbol)
+
+f8 (highlight-symbol next)
+
+S-f8 (highlight-symbol previous)
+
+unhighlight-regexp
 
 * Tmux
-  Copy & paste in tmux
-  C-b [ (Enter select mode)
-  C-space (Start selecting)
-  M-w (Copies selected text into tmux clipboard)
-  C-b ] (Paste)
+** Copy & paste in tmux
+C-b [ (Enter select mode)
+
+C-space (Start selecting)
+
+M-w (Copies selected text into tmux clipboard)
+
+C-b ] (Paste)
 
   
   
