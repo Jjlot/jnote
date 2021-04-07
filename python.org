@@ -5,12 +5,46 @@
 #+BEGIN_SRC python
 import logging
 
-logging.basicConfig(filename='logger.log', level=logging.INFO)
+logging.basicConfig(filename='logger.log', encoding='utf-8')
 
-logging.info('info message')
-logging.warn('warn message')
-logging.error('error message')
+# getLogger前要先basicConfig
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+
+logging.debug('This is a debug message')
+
+logging.info('This is an info message')
+
+logging.warning('This is a warning message')
+
+logging.error('This is an error message')
+
+logging.critical('This is a critical message')
+
+logger = logging.getLogger('example_logger')
+
+logger.warning('%s before you %s', 'Look', 'leap!')
+
+LOG = logging.getLogger(__name__)
+
+LOG.info('In log')
 #+END_SRC
+
+** 捕获traceback
+#+begin_src python :results output
+try:
+    1/0
+except Exception:
+    logging.error("Something error", exc_info=True)
+#+end_src
+
+** python 日志 logging模块(详细解析)
+https://blog.csdn.net/pansaky/article/details/90710751
+
+** Python之日志处理（logging模块）
+https://www.cnblogs.com/yyds/p/6901864.html
+
+** Python之向日志输出中添加上下文信息
+https://www.cnblogs.com/yyds/p/6897964.html
 
 * How to use syslog
 #+BEGIN_SRC python
@@ -19,15 +53,16 @@ import syslog
 syslog.syslog('String test')
 #+END_SRC
 
-
 * Time duration
 #+BEGIN_SRC python
-  import datetime
+import datetime
 
-  start = datetime.datetime.now()
-  # Some process
-  end = datetime.datetime.now()
+start = datetime.datetime.now()
+# Some process
+end = datetime.datetime.now()
 
-  duration = end - start
-  print(' ----->time result: start at %s, end at %s, duration %s\n', str(start), str(end), str(duration))
+duration = end - start
+print(' ----->time result: start at %s, end at %s, duration %s\n', str(start), str(end), str(duration))
 #+END_SRC
+
+

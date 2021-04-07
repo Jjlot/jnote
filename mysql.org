@@ -28,6 +28,16 @@ select version()
 HeidiSQL
 
 ** 远程登陆mysql
-mysql -uroot -p -h10.154.0.43 -P3341
+mysql -uroot -h192.168.56.100 -P3306
+
+use mysql
+
+grant all privileges on *.* to root@'%' identified by "password";
+
+UPDATE user SET Password = password('') WHERE User = 'root';
+
+select `User`,`Host`,`Password` from `user`;
+
+flush privileges;
 
 

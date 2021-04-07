@@ -198,9 +198,9 @@ qemu-img resize vm.qcow2 +10G
 * Date
 ** Time duration
 #+begin_src shell
-  date +"%T.%N"
-  ping 127.0.0.1 -c 4
-  date +"%T.%N"
+date +"%T.%N"
+ping 127.0.0.1 -c 4
+date +"%T.%N"
 #+end_src
 
 * Cat
