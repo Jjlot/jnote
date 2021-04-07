@@ -546,3 +546,31 @@ ps -L [pid]
 ps aux --forest
 
 
+* curl json format
+curl http://192.168.248.1:80/gui/ns/id9 | python -m json.tool
+
+* gdb
+** Set a memory break point
+(gdb) watch 0x11223344
+
+** Print var type
+(gdb) whatis he
+type = struct child
+
+** Print struct details
+(gdb) ptype he
+type = struct child {
+char name[10];
+enum {boy, girl} gender;
+}
+
+* gcc
+** Switch gcc version
+yum install centos-release-scl 
+
+yum install devtoolset-7-gcc 
+
+scl enable devtoolset-7 bash
+
+gcc -v
+

@@ -40,6 +40,27 @@ f8 (highlight-symbol next)
 S-f8 (highlight-symbol previous)
 
 unhighlight-regexp
+   
+** Add / del breakpoint in gdb mode
+C-x C-a C-b (Add breakpoint)
+
+C-x C-a C-d (Delete breakpoint)
+
+** Python
+C-c p (Open python panel)
+
+C-c c (Run python)
+
+** Change the status of todo-list
+C-c C-t (org-todo)
+
+** Emacs org-mode
+#+TITLE: title-name
+#+STARTUP: showall
+#+OPTIONS: TOC:nil ;关闭目录
+#+OPTIONS: NUM:nil ;关闭标题前面的数字
+#+OPTIONS: AUTHOR:nil ;不显示作者
+#+OPTIONS: TIMESTAMP:nil ;不显示创建时间
 
 * Tmux
 ** Copy & paste in tmux
@@ -51,5 +72,4 @@ M-w (Copies selected text into tmux clipboard)
 
 C-b ] (Paste)
 
-  
-  
+

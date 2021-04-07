@@ -1,29 +1,12 @@
 #+STARTUP: showall
 
-* How to config samba
-
-https://www.jianshu.com/p/44330c22f040
-
-* Offline install of oh-my-zsh on Ubuntu
-
-https://gist.github.com/hewerthomn/65bb351bf950470f6c9e6aba8c0c04f1
-
-PS: commit git error if no git in env
-
-* CentOS 7下FTP服务器的安装配置
-(not working well)https://jingyan.baidu.com/article/86fae346d536023c48121a50.html
-
-use this:
-https://blog.csdn.net/qq_21687989/article/details/78568793
-最后在/etc/vsftpd/vsftpd.conf配置文件中添加了以下两句
-chroot_local_user=YES  ## 原本就有，取掉注释就好
-allow_writeable_chroot=YES
 
 * One of the configured repositories failed
 yum clean all
 yum makecache
 
-# Git config
+* git
+** Git config
 git config --global user.name Jjlot
 git config --global user.email jingran84@163.com
 
@@ -31,20 +14,10 @@ git config --global user.email jingran84@163.com
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left "[]"
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "[]"
 
-* valgrind
-内存泄漏检测工具
-
-* links
-** openvswitch实现arp代答和icmp代答
-https://blog.csdn.net/yuyin1018/article/details/106720530
-
-* EVPN技术介绍
-http://www.h3c.com/cn/d_201811/1131079_30005_0.htm
-
 * Centaur Emacs
 ** Windows剪贴板粘贴中文乱码
 #+begin_src emacs-lisp
-(set-clipboard-coding-system 'euc-cn)
+  (set-clipboard-coding-system 'euc-cn)
 #+end_src
 
 * Something todo
@@ -61,5 +34,140 @@ refs: https://www.raspberrypi.org/forums/viewtopic.php?t=294014
 
 跑步分泌的多巴胺仅次于谈恋爱：三公里专治各种不爽，五公里专治各种内伤，十公里跑完内心全是坦荡和善良。
 
+内存泄漏检测工具 valgrind
 
+* Keymap
+** Remap Caps-Lock key to Ctrl in CentOS
+setxkbmap -option ctrl:nocaps
+
+** Reset layout in CentOS
+setxkbmap -option
+
+** Remap Caps-Lock key to Ctrl in Windows 7/8
+Go to HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout
+
+Create new entry with type Binary value named: Scancode Map
+
+"Scancode Map"=hex:00,00,00,00,00,00,00,00,02,00,00,00,1d,00,3a,00,00,00,00,00
+
+Restart computer
+
+* *SD-WAN
+** SD-WAN 与传统 WAN 的比较
+*** What is the Traditional WAN ?
+
+** 传统 WAN 存在的问题
+传统 WAN 设计基于分支机构中堆叠的多个设备，这些设备采用孤岛式管理，并且通过不同的 WAN 链路进行连接。
+
+*** 带宽成本高昂
+昂贵的专有/MPLS 线路的有限带宽会阻碍部署并影响应用的性能。同时，专用/MPLS WAN 冗余的部署和管理也很复杂。
+
+*** 应用性能无法预测
+通过 Internet 链路的应用流量缺乏 SLA，因此性能无法预测。每当应用服务质量发生变化，都需要在分支机构和数据中心进行手动更改。
+
+*** 对数据中心的依赖性
+由于陈旧的星型网络设计无法实现从分支机构直接访问云资源，流量将通过企业数据中心进行回程传输，而这会导致性能严重受损。
+
+*** 复杂的基础架构
+传统 WAN 包含通过不同 WAN 链路连接的多个单功能设备和虚拟设备。这种基础架构扩张会导致分支机构的 IT 管理变得很复杂。
+
+由于目前国内运营商MPLS VPN网络的已经大规模部署，短期内运营商不会用SD-WAN替换MPLS或其他专线业务，但是会利用SD-WAN技术丰富MPLSVPN业务或者做为最后一公里的接入技术。
+
+* Install Oh-my-zsh in CentOS 7.5 mini
+yum install zsh
+
+curl -Lo install.sh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+
+sh install.sh
+
+* Install emacs 25.1 in CentOS 7.5 mini
+curl -O http://ftp.gnu.org/gnu/emacs/emacs-25.1.tar.gz
+
+tar -zxvf emacs-25.1.tar.gz
+   
+cd emacs-25.1.tar.gz
+   
+yum -y install libXpm-devel libjpeg-turbo-devel openjpeg-devel openjpeg2-devel turbojpeg-devel giflib-devel libtiff-devel gnutls-devel libxml2-devel GConf2-devel dbus-devel wxGTK-devel gtk3-devel libselinux-devel gpm-devel librsvg2-devel ImageMagick-devel libncurses-dev ncurses-devel gcc
+   
+./configure
+   
+make
+   
+make install
+ 
+* SELinux
+getenforce
+
+setenforce 0
+
+* HyperLinks
+** openvswitch实现arp代答和icmp代答
+https://blog.csdn.net/yuyin1018/article/details/106720530
+
+** EVPN技术介绍
+http://www.h3c.com/cn/d_201811/1131079_30005_0.htm
+
+** uTorrent track list
+https://github.com/ngosang/trackerslist
+
+** Search engine
+feikebt.com
+
+http://btkittyit.pw/
+
+** How to config samba
+https://www.jianshu.com/p/44330c22f040
+
+** 桌面也疯狂  桌游(BoardGame)漫谈 篇五：两个人的桌游世界双人桌游推荐
+https://post.smzdm.com/p/422499/
+  
+** 实现网 - 按需雇佣 BAT 工程师、设计师
+https://shixian.com/
+  
+** 有哪些适合恋人一起看的电影？
+https://www.zhihu.com/question/24309989
+  
+** 知道创宇研发技能表v2.2
+https://blog.knownsec.com/Knownsec_RD_Checklist/v2.2.html
+  
+** 简寻-高端程序员精准职位推荐/精准招聘
+https://hr.jianxun.io
+  
+** Blogging with Emacs org-mode and Github Pages
+https://acaird.github.io/computers/2013/05/24/blogging-with-org-and-git
+  
+** Org-mode Babel使用示例
+http://www.3zso.com/archives/orgmode-babel.html
+  
+** DTO - 服务实现中的核心数据
+https://www.cnblogs.com/loveis715/p/4379656.html
+
+** '大地云网'通用SD-WAN整体解决方案
+
+** 关于DCI中传输网络的一些探讨
+https://www.sdnlab.com/18604.html
+
+** 什么是Cloud Native（云原生）应用架构？
+https://jimmysong.io/posts/what-is-cloud-native-application-architecture/
+
+** 终于有人把SDH、MSTP、OTN和PTN的关系解释清楚了
+https://zhuanlan.zhihu.com/p/43593819
+
+** 一篇文章带你看懂5G网络（接入网+承载网+核心网）
+http://www.sohu.com/a/284291309_257861
+
+** SD-WAN 技术架构的发展和演进
+https://www.sdnlab.com/22769.html
+
+** 老网工：再谈SD-WAN的几种典型部署和实践
+https://www.sdnlab.com/20720.html
+
+** K8S Runtime CRI OCI contained dockershim 理解
+https://www.cnblogs.com/charlieroro/articles/10998203.html
+
+** No title
+http://www.zte-cs.cn/m/view.php?aid=153
+
+** The c ide config
+https://tuhdo.github.io/c-ide.html
 
