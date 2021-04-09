@@ -40,4 +40,9 @@ select `User`,`Host`,`Password` from `user`;
 
 flush privileges;
 
+** Mysql execute statement
+mysql -Dneutron -e "select * from routers"
+
+mysql -Dneutron -e "select * from routers" --xml
+
 

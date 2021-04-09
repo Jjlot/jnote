@@ -54,6 +54,7 @@ syslog.syslog('String test')
 #+END_SRC
 
 * Time duration
+** The simple way
 #+BEGIN_SRC python
 import datetime
 
@@ -65,4 +66,60 @@ duration = end - start
 print(' ----->time result: start at %s, end at %s, duration %s\n', str(start), str(end), str(duration))
 #+END_SRC
 
+** Decorator based
+#+begin_src python :results output
+from time import time
 
+def timeit(f):
+
+    def timed(*args, **kw):
+
+        ts = time()
+        result = f(*args, **kw)
+        te = time()
+
+        print('func:%r args:[%r, %r] took: %2.4f sec' % (f.__name__, args, kw, te-ts))
+        return result
+
+    return timed
+
+@timeit
+def foo():
+    print('hi')
+#+end_src
+
+** Class-based Context Manager
+#+begin_src python :results output
+from time import time
+
+class Timer(object):
+    def __init__(self, description):
+        self.description = description
+
+    def __enter__(self):
+        self.start = time()
+
+    def __exit__(self, type, value, traceback):
+        self.end = time()
+        print('%s: %s' % (self.description, self.end - self.start))
+
+
+with Timer("List Comprehension Example"):
+    s = [x for x in range(10000000)]
+#+end_src
+
+* Pretty table
+** Sample
+#+begin_src python :results output
+from prettytable import PrettyTable
+
+x = PrettyTable()
+
+x.field_names = ["City name", "Area", "Population", "Annual Rainfall"]
+x.add_row(["Adelaide", 1295, 1158259, 600.5])
+x.add_row(["Brisbane", 5905, 1857594, 1146.4])
+
+print(x)
+#+end_src
+
+* click
