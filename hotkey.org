@@ -1,6 +1,16 @@
 #+STARTUP: showall
 
 * Emacs
+** org-togle
+*** org-toggle-heading
+C-c C-*
+
+*** outline-promote
+C-c C-<
+
+*** outline-demote
+C-c C->
+
 ** copy / Cut & Paste in emacs
 C-@ or C-SPACE (Select)
 

@@ -1,7 +1,236 @@
 #+STARTUP: showall
 
-* Docker
-** Image
+* Linux internal
+** ps
+*** Show threads
+ps -L [pid]
+
+*** Show processes in a hierarchy
+ps aux --forest
+
+** kill
+kill -9 `ps aux | grep neutron-server`
+
+** ssh
+*** SSH免密 (client operations)
+**** 客户端生成公私钥(~/.ssh)
+ssh-keygen
+
+**** 上传公钥到服务器(~/.ssh/authorized_keys)
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.235.22
+
+*** SSH tunnel via multiple hops
+**** Direct command
+ssh -J jumpuser1@jumphost1,jumpuser2@jumphost2,...,jumpuserN@jumphostN user@host
+
+**** Via configuration
+Add this to your ~/.ssh/config (see man 5 ssh_config for details):
+
+Host host2
+  ProxyCommand ssh host1 -W %h:%p
+
+Then ssh host2 will automatically tunnel through host1
+
+** sed
+*** Command sample
+sed -i 's/shanghai/nanjing/g' input.json
+
+sed '/shanghai2/a2' input.json
+
+*** Explain
+-i：直接对内容进行修改，不加-i时默认只是预览，不会对文件做实际修改
+
+s: 替换  替换掉匹配的内容
+
+a: 追加  向匹配行后面插入内容
+
+d: 删除  删除匹配的内容
+
+*** Comment
+sed -i '/2001/s/^/#/g' file
+
+*** Uncomment
+sed -i '/2001/s/^#//g' file
+
+** systemctl
+systemctl is-active neutron-server
+
+systemctl --system daemon-reload
+
+ntsysv
+
+/etc/systemd/system
+
+//usr/lib/systemd/system/
+
+** sysctl
+sysctl net.ipv4.ip_forward
+
+sysctl -w net.ipv4.ip_forward=1
+
+# 加载系统参数，默认使用 /etc/sysctl.conf
+sysctl -p
+
+# Default enable ip forwarding when adding to /etc/sysctl.conf
+net.ipv4.ip_forward = 1
+
+** CentOS yum repo
+*** For x86
+curl https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo > /etc/yum.repos.d/CentOS-Base.repo
+
+yum clean all && yum makecache
+
+*** For Aarch64
+curl https://mirrors.huaweicloud.com/repository/conf/CentOS-AltArch-7.repo > /etc/yum.repos.d/CentOS-Base.repo
+
+yum clean all && yum makecache
+
+** Ip
+*** Address
+ip addr add 100.1.1.1/24 dev eth0
+
+ip addr del 100.1.1.1/24 dev eth0
+
+ip addr add 2001::10/64 dev eth0
+
+ip addr del 2001::10/64 dev eth0
+
+ifconfig eth0 inet6 del fe80::c160:cd99:cf48:c7fd/64
+
+*** Mac modify
+ifconfig eth0 hw ether 00:11:11:11:11:11
+
+*** Namespace
+ip netns add ns10
+  
+ip link set eth10 netns ns10
+
+ip netns exec ns10 bash
+
+*** Veth
+ip link add veth0 type veth peer name veth1
+
+*** Vlan
+ip link add link veth0 name veth0.160 type vlan id 160
+
+** Iptables
+iptables -I INPUT -p tcp -m tcp -j ACCEPT
+
+** brctl  
+brctl addbr br0
+
+brctl addif br0 veth0
+
+brctl show
+
+brctl showmacs br0
+
+** nmtui
+Text User Interface for controlling NetworkManager
+
+** dhcp
+*** Forget ipv6
+/var/lib/dhclient/dhclient6.leases
+
+** date
+*** time duration
+#+begin_src shell
+date +"%T.%N"
+ping 127.0.0.1 -c 4
+date +"%T.%N"
+#+end_src
+
+*** time zone
+timedatectl set-timezone Asia/Shanghai
+
+** cat
+#+begin_src shell
+  cat >/tmp/intf.xml <<EOF
+  hi
+  EOF
+#+end_src
+
+** awk
+awk 是很实用的文本处理命令，print 到后带的是你要获取第几列，sed -n 是指定第几行。
+ls -l | awk '{print $5}' | sed -n '2p'
+
+** systemd-cat
+systemd-cat  Connect a pipeline or program's output with the journal
+#+begin_src shell
+  printf "hi" | systemd-cat
+#+end_src
+
+** eth0
+#+begin_src shell
+cat > /etc/sysconfig/network-scripts/ifcfg-eth0 << EOF
+TYPE=Ethernet
+DEFROUTE=yes
+PEERDNS=yes
+PEERROUTES=yes
+NAME=eth0
+DEVICE=eth0
+ONBOOT=yes
+IPADDR=192.168.0.66
+NETMASK=255.255.255.0
+GATEWAY=192.168.0.1
+EOF
+#+end_src
+
+** iptables
+*** counter
+iptables --list-rules -v
+
+iptables-save -c
+
+iptables-save -c | grep -v '\[0:0\]'
+
+iptables -Z
+
+less /etc/sysconfig/iptables
+
+iptables -nL -t nat
+
+*** Samples
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
+
+* Other package
+** gdb
+*** Set a memory break point
+(gdb) watch 0x11223344
+
+*** Print var type
+(gdb) whatis he
+type = struct child
+
+*** Print struct details
+(gdb) ptype he
+type = struct child {
+char name[10];
+enum {boy, girl} gender;
+}
+
+** gcc
+*** Switch gcc version
+yum install centos-release-scl 
+
+yum install devtoolset-7-gcc 
+
+scl enable devtoolset-7 bash
+
+gcc -v
+
+** tcpdump
+*** tcpdump -xx -tt 直接把报文用十六进制打印出来
+
+** Git
+*** Create a new remote branch
+git push origin 6.0.2:6.0.2-jing
+
+*** Delete a remote branch
+git push origin --delete 6.0.2-jing
+
+** Docker
+*** Image
 docker search centos
 
 docker pull centos:7.9.2009
@@ -10,7 +239,7 @@ docker images
 
 docker rmi 218b8335b7b0
    
-** Container
+*** Container
 docker run -itd centos bash
    
 docker run -itd --name="centos7" --privileged=true centos:7 /usr/sbin/init
@@ -25,7 +254,7 @@ docker rm 47d478b8dcbf
 
 pipework br-int -l pf0 dpf0 100.1.1.10/24 00:11:11:11:11:11
 
-** Proxy between Docker daemon and the Internet
+*** Proxy between Docker daemon and the Internet
 #+begin_src shell
 mkdir -p /etc/systemd/system/docker.service.d
 
@@ -43,7 +272,7 @@ systemctl restart docker
 systemctl show --property=Environment docker
 #+end_src
 
-** Enable ipv6
+*** Enable ipv6
 Edit /etc/docker/daemon.json, set the ipv6 key to true and the fixed-cidr-v6 key to your IPv6 subnet. In this example we are setting it to 2001:db8:1::/64.
 
 #+begin_src json
@@ -61,7 +290,7 @@ Reload the Docker configuration file.
   systemctl reload docker
 #+end_src
 
-* Quagga
+** Quagga
 yum install quagga
 
 systemctl start zebra
@@ -70,58 +299,7 @@ vtysh
 
 telnet 127.0.0.1 2601
 
-* CentOS yum repo
-*** For x86
-curl https://mirrors.huaweicloud.com/repository/conf/CentOS-7-anon.repo > /etc/yum.repos.d/CentOS-Base.repo
-
-yum clean all && yum makecache
-
-*** For Aarch64
-curl https://mirrors.huaweicloud.com/repository/conf/CentOS-AltArch-7.repo > /etc/yum.repos.d/CentOS-Base.repo
-
-yum clean all && yum makecache
-
-* Ip
-** Address
-ip addr add 100.1.1.1/24 dev eth0
-
-ip addr del 100.1.1.1/24 dev eth0
-
-ip addr add 2001::10/64 dev eth0
-
-ip addr del 2001::10/64 dev eth0
-
-ifconfig eth0 inet6 del fe80::c160:cd99:cf48:c7fd/64
-
-** Mac modify
-ifconfig eth0 hw ether 00:11:11:11:11:11
-
-** Namespace
-ip netns add ns10
-  
-ip link set eth10 netns ns10
-
-ip netns exec ns10 bash
-
-** Veth
-ip link add veth0 type veth peer name veth1
-
-** Vlan
-ip link add link veth0 name veth0.160 type vlan id 160
-
-* Iptables
-iptables -I INPUT -p tcp -m tcp -j ACCEPT
-
-* brctl  
-brctl addbr br0
-
-brctl addif br0 veth0
-
-brctl show
-
-brctl showmacs br0
-
-* pipework   
+** pipework   
 git clone https://github.com/jpetazzo/pipework
 
 cp pipework/pipework /bin
@@ -135,7 +313,7 @@ pipework mac:<hostinterface_macaddress> [-i containerinterface] [-l localinterfa
   
 pipework br-int -l pf0 dpf0 100.1.1.10/24 00:11:11:11:11:11
 
-* Keepalived
+** Keepalived
 keepalived -f /home/hyper/ns10.conf \
            -p /var/run/keepalivedns10.pid \
            -r /var/run/keepalivedns10.pid \
@@ -144,27 +322,19 @@ keepalived -f /home/hyper/ns10.conf \
 
 宿主内要装好keepalived, modprobe ip_vs  
 
-* Wifi
-** Tools
-nmtui
-
-* Dhcp
-** Forget ipv6
-/var/lib/dhclient/dhclient6.leases
-
-* Mininet
-** GUI design
+** Mininet
+*** GUI design
 ./mininet/examples/miniedit.py
 
-* Qemu
+** Qemu
 qemu-img info vm.qcow2
 
 qemu-img resize vm.qcow2 +10G
 
-** create fs
+*** create fs
 "C:/Program Files/qemu/qemu-img" create -f qcow2 centos-aarch64.qcow2 128G
 
-** start from img
+*** start from img
 "C:/Program Files/qemu/qemu-img" info CentOS-Userland-7-aarch64-generic-Minimal-2009-sda.raw
 
 "C:/Program Files/qemu/qemu-img" resize CentOS-Userland-7-aarch64-generic-Minimal-2009-sda.raw 128G
@@ -189,7 +359,7 @@ qemu-img resize vm.qcow2 +10G
       -serial telnet::5555,server,nowait
 #+END_SRC
 
-** install from iso
+*** install from iso
 #+BEGIN_SRC shell
   "C:/Program Files/qemu/qemu-system-aarch64" \
       -cpu cortex-a72 -smp 4 -M virt -m 8192 \
@@ -200,37 +370,12 @@ qemu-img resize vm.qcow2 +10G
       -serial telnet::5555,server,nowait
 #+END_SRC
 
-* Date
-** Time duration
-#+begin_src shell
-date +"%T.%N"
-ping 127.0.0.1 -c 4
-date +"%T.%N"
-#+end_src
-
-* Cat
-#+begin_src shell
-  cat >/tmp/intf.xml <<EOF
-  hi
-  EOF
-#+end_src
-
-* awk
-awk 是很实用的文本处理命令，print 到后带的是你要获取第几列，sed -n 是指定第几行。
-ls -l | awk '{print $5}' | sed -n '2p'
-
-* systemd-cat
-systemd-cat  Connect a pipeline or program's output with the journal
-#+begin_src shell
-  printf "hi" | systemd-cat
-#+end_src
-
-* virsh
+** virsh
 virsh domiflist vsr11_north
 
 /var/lib/libvirt/images/jing
 
-** aarch64 vm
+*** aarch64 vm
 #+BEGIN_SRC shell
   virt-install \
       --virt-type=kvm \
@@ -244,7 +389,90 @@ virsh domiflist vsr11_north
       --disk path=/home/jing/centos-aarch64.qcow2,size=80,bus=virtio,format=qcow2
 #+END_SRC
 
-* disk scale
+** Guestfish
+*** how-to-set-root-password-of-centos-7
+yum install libguestfs-tools
+
+openssl passwd -1 password
+
+guestfish --rw -a /var/lib/libvirt/images/CentOS-7-x86_64-GenericCloud-1907.qcow2
+
+https://www.linuxcnf.com/2019/11/how-to-set-root-password-of-centos-7.html
+
+https://www.cnblogs.com/BuildingHome/p/4834859.html
+
+** mycli
+yum install python3-pip
+
+pip3 install --upgrade pip
+
+pip3 install mycli
+
+** Deploy vsftpd on CentOS (Need to rewrite the sed commands with sed comment below)
+yum install ftp vsftpd -y
+
+cp /etc/vsftpd/vsftpd.conf /etc/vsftpd/vsftpd.conf.default
+
+useradd ftp_user
+
+passwd ftp_user
+
+mkdir /home/ftp
+
+chown -R ftp_user /home/ftp
+
+sed -i 's/anonymous_enable=YES/anonymous_enable=NO/' /etc/vsftpd/vsftpd.conf
+
+sed -i '$ a chroot_local_user=YES' /etc/vsftpd/vsftpd.conf
+
+sed -i '$ a allow_writeable_chroot=YES' /etc/vsftpd/vsftpd.conf
+
+sed -i '$ a local_root=/home/ftp' /etc/vsftpd/vsftpd.conf
+
+systemctl enable vsftpd
+
+systemctl start vsftpd
+
+** lsof
+*** Unix socket
+lsof -U
+
+*** List all the network connections
+lsof -i
+
+*** 显示IP地址非url
+lsof -n
+
+*** 显示port非name
+lsof -P
+
+*** Find IPv4 /IPv6 Socket file
+lsof -i@100.1.1.1
+
+*** List all Process or Commands that belongs to a Process I
+lsof -p 2842
+
+*** List all open files under a specific directory
+lsof +D /var/log/
+
+*** Combine more list options using OR/AND
+**** -p or -U
+lsof -p 4667 -U
+
+**** -p and -U
+lsof -p 4667 -U a
+
+*** Full command name
+lsof +c0
+
+*** 依据进程名查看
+lsof -c mysql
+
+** curl
+*** json format
+curl http://192.168.248.1:80/gui/ns/id9 | python -m json.tool
+
+** disk scale
 [root@localhost ~]# fdisk /dev/mmcblk0
 Welcome to fdisk (util-linux 2.23.2).
 
@@ -293,7 +521,7 @@ Syncing disks.
 
 resize2fs /dev/mmcblk0p3
 
-* start vm (nested vm)
+** start vm (nested vm)
 yum -y install libguestfs-tools libguestfs-xfs virt-top
 
 virt-builder centos-7.2 --format qcow2 -o centos72.qcow2 --root-password password
@@ -336,85 +564,8 @@ virt-builder centos-7.2 --format qcow2 -o centos72.qcow2 --root-password passwor
 
 virsh undefine --nvram vvm
 
-* eth0
-#+begin_src shell
-cat > /etc/sysconfig/network-scripts/ifcfg-eth0 << EOF
-TYPE=Ethernet
-DEFROUTE=yes
-PEERDNS=yes
-PEERROUTES=yes
-NAME=eth0
-DEVICE=eth0
-ONBOOT=yes
-IPADDR=192.168.0.66
-NETMASK=255.255.255.0
-GATEWAY=192.168.0.1
-EOF
-#+end_src
-
-* Date
-timedatectl set-timezone Asia/Shanghai
-
-* Guestfish
-** how-to-set-root-password-of-centos-7
-yum install libguestfs-tools
-
-openssl passwd -1 password
-
-guestfish --rw -a /var/lib/libvirt/images/CentOS-7-x86_64-GenericCloud-1907.qcow2
-
-https://www.linuxcnf.com/2019/11/how-to-set-root-password-of-centos-7.html
-
-https://www.cnblogs.com/BuildingHome/p/4834859.html
-
-* mycli
-yum install python3-pip
-
-pip3 install --upgrade pip
-
-pip3 install mycli
-
-* iptables
-** counter
-iptables --list-rules -v
-
-iptables-save -c
-
-iptables-save -c | grep -v '\[0:0\]'
-
-iptables -Z
-
-less /etc/sysconfig/iptables
-
-iptables -nL -t nat
-
-** Samples
--A INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
-
-* systemctl
-systemctl is-active neutron-server
-
-systemctl --system daemon-reload
-
-ntsysv
-
-/etc/systemd/system
-
-//usr/lib/systemd/system/
-
-* sysctl
-sysctl net.ipv4.ip_forward
-
-sysctl -w net.ipv4.ip_forward=1
-
-# 加载系统参数，默认使用 /etc/sysctl.conf
-sysctl -p
-
-# Default enable ip forwarding when adding to /etc/sysctl.conf
-net.ipv4.ip_forward = 1
-
-* CWP (CentOS web panel)
-** install
+** CWP (CentOS web panel)
+*** install
 cd /usr/local/src
 
 wget http://centos-webpanel.com/cwp-el7-latest
@@ -425,13 +576,13 @@ ACCEPT: domain:2030
 
 REFS: https://www.tecmint.com/install-centos-web-panel-on-centos-7/
 
-** phpmyadmin AllowNoPassword
+*** phpmyadmin AllowNoPassword
 /usr/local/cwpsrv/var/services/pma/config.inc.php
 
 $cfg['Servers'][$i]['AllowNoPassword'] = true;
 
-* openssl rsa
-** operations
+** openssl rsa
+*** operations
 openssl genrsa -out key.pem 1024
 
 openssl rsa -in key.pem -pubout -out pubkey.pem
@@ -441,154 +592,4 @@ openssl rsautl -encrypt -in input.json -inkey pubkey.pem -pubin -out encrypted.f
 cat encrypted.file | openssl enc -A -base64
 
 openssl rsautl -decrypt -in encrypted.file -inkey key.pem -out decrypted.file
-
-* Deploy vsftpd on CentOS (Need to rewrite the sed commands with sed comment below)
-yum install ftp vsftpd -y
-
-cp /etc/vsftpd/vsftpd.conf /etc/vsftpd/vsftpd.conf.default
-
-useradd ftp_user
-
-passwd ftp_user
-
-mkdir /home/ftp
-
-chown -R ftp_user /home/ftp
-
-sed -i 's/anonymous_enable=YES/anonymous_enable=NO/' /etc/vsftpd/vsftpd.conf
-
-sed -i '$ a chroot_local_user=YES' /etc/vsftpd/vsftpd.conf
-
-sed -i '$ a allow_writeable_chroot=YES' /etc/vsftpd/vsftpd.conf
-
-sed -i '$ a local_root=/home/ftp' /etc/vsftpd/vsftpd.conf
-
-systemctl enable vsftpd
-
-systemctl start vsftpd
-
-* sed
-** Command sample
-sed -i 's/shanghai/nanjing/g' input.json
-
-sed '/shanghai2/a2' input.json
-
-** Explain
--i：直接对内容进行修改，不加-i时默认只是预览，不会对文件做实际修改
-
-s: 替换  替换掉匹配的内容
-
-a: 追加  向匹配行后面插入内容
-
-d: 删除  删除匹配的内容
-
-** Comment
-sed -i '/2001/s/^/#/g' file
-
-** Uncomment
-sed -i '/2001/s/^#//g' file
-
-* lsof
-** Unix socket
-lsof -U
-
-** List all the network connections
-lsof -i
-
-** 显示IP地址非url
-lsof -n
-
-** 显示port非name
-lsof -P
-
-** Find IPv4 /IPv6 Socket file
-lsof -i@100.1.1.1
-
-** List all Process or Commands that belongs to a Process I
-lsof -p 2842
-
-** List all open files under a specific directory
-lsof +D /var/log/
-
-** Combine more list options using OR/AND
-*** -p or -U
-lsof -p 4667 -U
-
-*** -p and -U
-lsof -p 4667 -U a
-
-** Full command name
-lsof +c0
-
-** 依据进程名查看
-lsof -c mysql
-
-* kill
-kill -9 `ps aux | grep neutron-server`
-
-* ssh
-** SSH免密 (client operations)
-*** 客户端生成公私钥(~/.ssh)
-ssh-keygen
-
-*** 上传公钥到服务器(~/.ssh/authorized_keys)
-ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.235.22
-
-** SSH tunnel via multiple hops
-*** Direct command
-ssh -J jumpuser1@jumphost1,jumpuser2@jumphost2,...,jumpuserN@jumphostN user@host
-
-*** Via configuration
-Add this to your ~/.ssh/config (see man 5 ssh_config for details):
-
-Host host2
-  ProxyCommand ssh host1 -W %h:%p
-
-Then ssh host2 will automatically tunnel through host1
-
-* ps
-** Show threads
-ps -L [pid]
-
-** Show processes in a hierarchy
-ps aux --forest
-
-
-* curl json format
-curl http://192.168.248.1:80/gui/ns/id9 | python -m json.tool
-
-* gdb
-** Set a memory break point
-(gdb) watch 0x11223344
-
-** Print var type
-(gdb) whatis he
-type = struct child
-
-** Print struct details
-(gdb) ptype he
-type = struct child {
-char name[10];
-enum {boy, girl} gender;
-}
-
-* gcc
-** Switch gcc version
-yum install centos-release-scl 
-
-yum install devtoolset-7-gcc 
-
-scl enable devtoolset-7 bash
-
-gcc -v
-
-* tcpdump
-** tcpdump -xx -tt 直接把报文用十六进制打印出来
-
-* Git
-** Create a new remote branch
-git push origin 6.0.2:6.0.2-jing
-
-** Delete a remote branch
-git push origin --delete 6.0.2-jing
 
