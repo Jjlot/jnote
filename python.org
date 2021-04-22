@@ -1,8 +1,144 @@
 #+TITLE: Python
 #+STARTUP: showall
 
-* How to use python logging
+
+* Basic knowledge
+** Format output
+#+begin_src python :results output
+print("a = %s, b = %s" % (a, b))
+#+end_src
+
+** Exception
+#+begin_src python :results output
+class Networkerror(Exception):
+    def __init__(self, arg):
+        self.input_string = arg
+        # print(self.args)
+
+try:
+    raise Networkerror("Bad request")
+
+except Networkerror as exc:
+    print(exc.input_string)
+    raise RuntimeError("run-time-error") from exc
+
+except KeyboardInterrupt:
+    print("Interrupt by keyboard")
+
+except:
+    print("All the exceptions")
+
+finally:
+    print("finally")
+#+end_src
+
+** Build-in exceptions
+https://docs.python.org/3/library/exceptions.html#bltin-exceptions
+
+* Code sections
+** Time duration
+*** The simple way
 #+BEGIN_SRC python
+import datetime
+
+start = datetime.datetime.now()
+# Some process
+end = datetime.datetime.now()
+
+duration = end - start
+print(' ----->time result: start at %s, end at %s, duration %s\n', str(start), str(end), str(duration))
+#+END_SRC
+
+*** Decorator based
+#+begin_src python :results output
+from time import time
+
+def timeit(f):
+
+    def timed(*args, **kw):
+
+        ts = time()
+        result = f(*args, **kw)
+        te = time()
+
+        print('func:%r args:[%r, %r] took: %2.4f sec' % (f.__name__, args, kw, te-ts))
+        return result
+
+    return timed
+
+@timeit
+def foo():
+    print('hi')
+#+end_src
+
+*** Class-based Context Manager
+#+begin_src python :results output
+from time import time
+
+class Timer(object):
+    def __init__(self, description):
+        self.description = description
+
+    def __enter__(self):
+        self.start = time()
+
+    def __exit__(self, type, value, traceback):
+        self.end = time()
+        print('%s: %s' % (self.description, self.end - self.start))
+
+
+with Timer("List Comprehension Example"):
+    s = [x for x in range(10000000)]
+#+end_src
+
+* Packages
+** prettytable
+#+begin_src python :results output
+from prettytable import PrettyTable
+
+x = PrettyTable()
+
+x.field_names = ["City name", "Area", "Population", "Annual Rainfall"]
+x.add_row(["Adelaide", 1295, 1158259, 600.5])
+x.add_row(["Brisbane", 5905, 1857594, 1146.4])
+
+print(x)
+#+end_src
+
+** argparse
+#+begin_src python :results output
+import argparse
+
+parser = argparse.ArgumentParser(description='This is the description')
+
+parser.add_argument('-s',
+                    '--string',
+                    dest='sample_string',
+                    type=str,
+                    default='default',
+                    required=False,
+                    help='Write help here')
+
+
+args = parser.parse_args()
+
+if args.sample_string:
+    print(args.sample_string)
+else:
+    print('no input')
+
+parser.print_help()
+#+end_src
+
+** syslog
+#+begin_src python :results output
+import syslog
+
+syslog.syslog('String test')
+#+end_src
+
+** logging
+#+begin_src python :results output
 import logging
 
 logging.basicConfig(filename='logger.log', encoding='utf-8')
@@ -27,9 +163,27 @@ logger.warning('%s before you %s', 'Look', 'leap!')
 LOG = logging.getLogger(__name__)
 
 LOG.info('In log')
-#+END_SRC
+#+end_src
 
-** 捕获traceback
+*** Exception
+#+begin_src python :results output
+import logging
+
+try:
+    raise Exception()
+except Exception as e:
+    logging.error("EEEE", exc_info=True)
+#+end_src
+#+begin_src python :results output
+import logging
+
+try:
+    raise Exception()
+except Exception:
+    logging.exception("EEEE")
+#+end_src
+
+*** 捕获traceback
 #+begin_src python :results output
 try:
     1/0
@@ -37,91 +191,22 @@ except Exception:
     logging.error("Something error", exc_info=True)
 #+end_src
 
-** python 日志 logging模块(详细解析)
+*** 自定义logging格式
+参考 from logging import LoggerAdapter
+
+*** python 日志 logging模块(详细解析)
 https://blog.csdn.net/pansaky/article/details/90710751
 
-** Python之日志处理（logging模块）
+*** Python之日志处理（logging模块）
 https://www.cnblogs.com/yyds/p/6901864.html
 
-** Python之向日志输出中添加上下文信息
+*** Python之向日志输出中添加上下文信息
 https://www.cnblogs.com/yyds/p/6897964.html
 
-* How to use syslog
-#+BEGIN_SRC python
-import syslog
+* Todo
+** click
 
-syslog.syslog('String test')
-#+END_SRC
+** with
 
-* Time duration
-** The simple way
-#+BEGIN_SRC python
-import datetime
-
-start = datetime.datetime.now()
-# Some process
-end = datetime.datetime.now()
-
-duration = end - start
-print(' ----->time result: start at %s, end at %s, duration %s\n', str(start), str(end), str(duration))
-#+END_SRC
-
-** Decorator based
-#+begin_src python :results output
-from time import time
-
-def timeit(f):
-
-    def timed(*args, **kw):
-
-        ts = time()
-        result = f(*args, **kw)
-        te = time()
-
-        print('func:%r args:[%r, %r] took: %2.4f sec' % (f.__name__, args, kw, te-ts))
-        return result
-
-    return timed
-
-@timeit
-def foo():
-    print('hi')
-#+end_src
-
-** Class-based Context Manager
-#+begin_src python :results output
-from time import time
-
-class Timer(object):
-    def __init__(self, description):
-        self.description = description
-
-    def __enter__(self):
-        self.start = time()
-
-    def __exit__(self, type, value, traceback):
-        self.end = time()
-        print('%s: %s' % (self.description, self.end - self.start))
-
-
-with Timer("List Comprehension Example"):
-    s = [x for x in range(10000000)]
-#+end_src
-
-* Pretty table
-** Sample
-#+begin_src python :results output
-from prettytable import PrettyTable
-
-x = PrettyTable()
-
-x.field_names = ["City name", "Area", "Population", "Annual Rainfall"]
-x.add_row(["Adelaide", 1295, 1158259, 600.5])
-x.add_row(["Brisbane", 5905, 1857594, 1146.4])
-
-print(x)
-#+end_src
-
-* click
-
-
+** Package and what?
+__init__.py
