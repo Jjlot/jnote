@@ -73,7 +73,17 @@ C-c C-t (org-todo)
 #+OPTIONS: TIMESTAMP:nil ;不显示创建时间
 
 * Tmux
-** Copy & paste in tmux
+** config file
+~/.tmux.conf
+
+** Normal hotkeys
+*** rename session
+C-b $
+
+*** rename window
+C-b ,
+
+*** Copy & paste in tmux
 C-b [ (Enter select mode)
 
 C-space (Start selecting)
@@ -82,4 +92,13 @@ M-w (Copies selected text into tmux clipboard)
 
 C-b ] (Paste)
 
+** Configurations
+*** Display time
+ctrl-b :set display-panes-time 5000
+
+set -g display-panes-time 5000
+
+* pycharm
+** Paste from history
+Alt + Y
 

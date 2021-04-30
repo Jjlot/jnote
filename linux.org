@@ -644,7 +644,6 @@ cat encrypted.file | openssl enc -A -base64
 
 openssl rsautl -decrypt -in encrypted.file -inkey key.pem -out decrypted.file
 
-
 * todo
 ** netstat
 
@@ -656,3 +655,8 @@ openssl rsautl -decrypt -in encrypted.file -inkey key.pem -out decrypted.file
 STAT column
 
 %MEM, VSZ and RSS
+
+** nc
+
+** crontab
+

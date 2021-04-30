@@ -46,17 +46,23 @@ neutron qos-bandwidth-limit-rule-create jing-30M --max-kbps 30720 --max-burst-kb
 neutron ipv6-ns-qos-policy-update --qos-policy-id 085ee6c0-d36f-4a98-9458-d9e05bad7733 fa7b69cf-6b07-4609-9078-48e6bb41b0e3
 
 ** Security-group
+*** create sg-all
 neutron security-group-create sg-all
-
-neutron security-group-rule-create sg-all --direction egress
 
 neutron security-group-rule-create sg-all --direction ingress --remote-ip-prefix 0.0.0.0/0
 
+neutron security-group-rule-create sg-all --direction ingress --remote-ip-prefix ::/0 --ethertype ipv6
+
+*** bind security-group
+**** nova
 nova list
 
 nova list-secgroup jing-vm1
 
 nova add-secgroup jing-vm1 sg-all
+
+**** neutron
+neutron port-update --security-group sg-all e46a40ed-c385-4c0c-8bad-67ed2c6a7f4a
 
 ** Firewall
 neutron firewall-policy-create jing-fw-policy
