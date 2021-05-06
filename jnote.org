@@ -20,12 +20,6 @@ gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "[]"
   (set-clipboard-coding-system 'euc-cn)
 #+end_src
 
-* Something todo
-** Centaur emacs自定配置
-
-** Raspberry开机脚本
-*** How to use Autostart - Raspberry Pi OS (Desktop)
-refs: https://www.raspberrypi.org/forums/viewtopic.php?t=294014
 
 * 乱七八糟
 火币
@@ -170,4 +164,18 @@ http://www.zte-cs.cn/m/view.php?aid=153
 
 ** The c ide config
 https://tuhdo.github.io/c-ide.html
+
+* Self study
+** W3schools
+# 主要关注 Mysql 和 Python相关的知识点
+https://www.w3schools.com/
+
+* Something todo
+** Centaur emacs自定配置
+
+** Raspberry开机脚本
+*** How to use Autostart - Raspberry Pi OS (Desktop)
+refs: https://www.raspberrypi.org/forums/viewtopic.php?t=294014
+
+** MongoDB
 

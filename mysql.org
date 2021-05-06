@@ -1,17 +1,123 @@
 #+STARTUP: showall
 #+OPTIONS: ^:nil
 
+* Mariadb - Systematic learning
+** Create db
+CREATE DATABASE moka;
 
-* SQL
+** Drop db
+DROP DATABASE moka;
+
+** Backup & restore db
+mysqldump -u root -p moka > /backup/mokaDB.bak
+
+mysqldump -u root -p --all-databases > /backup/mariadb.dump
+
+mysql -u root -p moka < /backup/mokaDB.bak
+
+** 建表语句
+SHOW CREATE TABLE `Persons`\G
+
+SHOW TABLE STATUS FROM moka\G
+
+** Create table
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+*** Base create
+CREATE TABLE Persons (
+    ID int NOT NULL AUTO_INCREMENT,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255) DEFAULT 'AHa',
+    Age int,
+    PRIMARY KEY (ID)
+);
+
+*** Foreign key
+CREATE TABLE author (
+  id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE book (
+  id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(200) NOT NULL,
+  author_id SMALLINT UNSIGNED NOT NULL,
+  CONSTRAINT `fk_book_author`
+    FOREIGN KEY (author_id) REFERENCES author (id)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT
+) ENGINE = InnoDB;
+
+*** Create Table Using Another Table
+CREATE TABLE moka AS SELECT PersonId, City FROM Persons;
+
+*** CONSTRAINT
+CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    CONSTRAINT PK_Person PRIMARY KEY (ID,LastName),
+    CONSTRAINT UNIQUE (LastName),
+    CONSTRAINT CHECK (Age>20)
+);
+
+** Alter table
+ALTER TABLE moka ADD Email varchar(255);
+
+ALTER TABLE moka DROP COLUMN Email;
+
+*** Primary key
+ALTER TABLE Persons ADD CONSTRAINT PK_Person PRIMARY KEY (ID,LastName);
+
+ALTER TABLE Persons DROP PRIMARY KEY;
+
+*** Foreign key
+ALTER TABLE Orders ADD FOREIGN KEY (PersonID) REFERENCES Persons(PersonID);
+
+ALTER TABLE Orders DROP FOREIGN KEY FK_PersonOrder;
+
+** server-system-variables
+https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html
+
+*** 外键约束
+SELECT @@FOREIGN_KEY_CHECKS;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+** MySQL Data Types
+CHAR, VARCHAR, TEXT, ENUM, SET, INT, YEAR
+
+char长度固定， 即每条数据占用等长字节空间；适合用在身份证号码、手机号码等定。
+
+varchar可变长度，可以设置最大长度；适合用在长度可变的属性。
+
+text不设置长度， 当不知道属性的最大长度时，适合用text。
+
+https://www.w3schools.com/sql/sql_datatypes.asp
+
+* To fix
 ** Select
+*** limit
 select * from ports limit 1;
 
+*** like
 select * from networks where name like 'jing%';
 
+*** order
 select device_id from ports where device_owner = 'network:floatingip' order by device_id;
 
+*** count
 select count(*) from floatingips;
 
+** Engine
+** utf8
+** table 注释
+** CONSTRAINT
+
+* MariaDB - Temporary record
 ** Update
 UPDATE floatingips SET fixed_port_id = 'NULL', fixed_ip_address = 'NULL', router_id = 'NULL' where fixed_port_id = '3bb7e43f-e5cc-44f9-8800-77c4a9e5d9d4';
 
