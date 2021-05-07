@@ -133,6 +133,24 @@ select version()
 ** Gui tools
 HeidiSQL
 
+** migrate
+*** alembic
+yum install python-alembic
+
+alembic init migration
+
+vim alembic.ini edit sqlalchemy.url
+
+alembic revision -m "init"
+
+alembic upgrade head
+
+alembic downgrade base
+
+alembic history
+
+alembic current
+
 ** 远程登陆mysql
 mysql -uroot -h192.168.56.100 -P3306
 
