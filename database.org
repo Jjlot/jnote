@@ -151,6 +151,10 @@ alembic history
 
 alembic current
 
+alembic upgrade 6dbc11710211:head --sql
+
+alembic revision --autogenerate -m "message"
+
 ** 远程登陆mysql
 mysql -uroot -h192.168.56.100 -P3306
 
