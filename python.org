@@ -35,7 +35,43 @@ finally:
 ** Build-in exceptions
 https://docs.python.org/3/library/exceptions.html#bltin-exceptions
 
+** Build-in functions
+*** dir()
+The dir() method tries to return a list of valid attributes of the object.
+
+dir(list) or dir(<Class name>) or dir(<Object name>)
+
+** str
+*** join
+'-'.join(('prefix', 'infix', 'postfix'))
+
 * Code sections
+** 强制子类重写父类中的方法
+#+begin_src python :results output
+import abc
+import six
+
+@six.add_metaclass(abc.ABCMeta)
+class Animal(object):
+    @abc.abstractmethod
+    def speak(self):
+        pass
+#+end_src
+
+** 单例模式
+*** Method 2
+#+begin_src python :results output
+_CALLBACK_MANAGER = None
+
+def _get_callback_manager():
+    global _CALLBACK_MANAGER
+    if _CALLBACK_MANAGER is None:
+        _CALLBACK_MANAGER = manager.CallbacksManager()
+    return _CALLBACK_MANAGER
+
+_get_callback_manager().subscribe(callback, resource, event, priority)
+#+end_src
+
 ** Time duration
 *** The simple way
 #+BEGIN_SRC python
@@ -203,10 +239,80 @@ https://www.cnblogs.com/yyds/p/6901864.html
 *** Python之向日志输出中添加上下文信息
 https://www.cnblogs.com/yyds/p/6897964.html
 
+** random
+#+begin_src python :results output
+import random
+n = random.randint(0,22)
+print(n)
+#+end_src
+
+* Openstack
+** call back
+#+begin_src python :results output
+from neutron_lib.callbacks import events
+from neutron_lib.callbacks import resources
+from neutron_lib.callbacks import registry
+
+"""
+This method(notify) is deprecated in favor of publish() and will be removed in Queens.
+"""
+
+class PublishEventPayload(events.EventPayload):
+    def __init__(self, context, metadata=None, request_body=None,
+                 states=None, resource_id=None, name=None):
+
+        super(PublishEventPayload, self).__init__(
+            context, metadata=metadata, request_body=request_body,
+            states=states, resource_id=resource_id)
+
+        self.name = name
+
+
+def module_callback(resource, event, trigger, payload):
+    print('module callback got a payload of metadata = %s, name = %s' % (payload.metadata, payload.name))
+
+
+class MyCallback(object):
+    @staticmethod
+    def object_callback(resource, event, trigger, payload):
+        print('object callback')
+
+    @classmethod
+    def class_callback(cls, resource, event, trigger, payload):
+        print('class callback')
+
+
+c = MyCallback()
+registry.subscribe(module_callback, resources.ROUTER, events.BEFORE_CREATE)
+registry.subscribe(c.object_callback, resources.ROUTER, events.BEFORE_CREATE)
+registry.subscribe(MyCallback.class_callback, resources.ROUTER, events.BEFORE_CREATE)
+
+
+def notify_callback(resource, event, trigger, **kwargs):
+    print('notify by %s, id is %s, name is %s' % (trigger.__name__, kwargs['id'], kwargs['name']))
+
+registry.subscribe(notify_callback, resources.ROUTER, events.AFTER_CREATE)
+
+
+def do_notify():
+    def nested_subscribe(resource, event, trigger, payload):
+        print('nested callback')
+
+    registry.subscribe(nested_subscribe, resources.ROUTER, events.BEFORE_CREATE)
+
+    # publish, why the order is indeterminate?
+    registry.publish(resources.ROUTER, events.BEFORE_CREATE, do_notify, PublishEventPayload(None, metadata='btw', name='moka'))
+
+    # notify
+    registry.notify(resources.ROUTER, events.AFTER_CREATE, do_notify, id='10', name='your_name')
+
+
+print('Notifying...')
+do_notify()
+
+#+end_src
+
 * Todo
 ** click
 
-** with
-
-** Package and what?
-__init__.py
+** lambda
