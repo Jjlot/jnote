@@ -246,6 +246,123 @@ n = random.randint(0,22)
 print(n)
 #+end_src
 
+** sqlalchemy
+#+begin_src python :results output
+# A study logging for Object Relational Tutorial
+# refs from: https://docs.sqlalchemy.org/en/14/orm/tutorial.html
+#
+
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import text
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
+
+
+Base = declarative_base()
+# The in-memory-only SQLite database from sqlalchemy tutorial
+# more common sample is 'mysql+pymysql://root@127.0.0.1/sparrow_player'
+engine = create_engine('sqlite:///:memory:', echo=True)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    fullname = Column(String)
+    nickname = Column(String)
+
+    # 不是很理解这东西对谁友好了
+    def __repr__(self):
+        return "<User(name='%s', fullname='%s', nickname='%s')>" % (self.name, self.fullname, self.nickname)
+
+class Address(Base):
+    __tablename__ = 'addresses'
+    id = Column(Integer, primary_key=True)
+    email_address = Column(String, nullable=False)
+    # Indicate the foreigner key
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    # TODO: Address表中的user是User表，back_populates是干啥的？
+    user = relationship("User", back_populates="addresses")
+
+# User表中的address是Address表
+User.addresses = relationship(
+    "Address", order_by=Address.id, back_populates="user")
+
+# TODO: 这句可能是create table的
+Base.metadata.create_all(engine)
+
+# Add one objects
+ed_user = User(name='ed', fullname='Ed Jones', nickname='edsnickname')
+session.add(ed_user)
+session.commit()
+
+# Add multi objects
+session.add_all([
+    User(name='wendy', fullname='Wendy Williams', nickname='windy'),
+    User(name='mary', fullname='Mary Contrary', nickname='mary'),
+    User(name='fred', fullname='Fred Flintstone', nickname='freddy')])
+session.commit()
+
+# Query
+our_user = session.query(User).\
+    filter_by(name='ed').first()
+print(our_user)
+
+# Query, order_by
+for instance in session.query(User).order_by(User.id):
+    print(instance.name, instance.fullname)
+
+# Query, indicate column
+for name, fullname in session.query(User.name, User.fullname):
+    print(name, fullname)
+
+# Query, filter
+for user in session.query(User).\
+        filter(User.name=='ed').\
+        filter(User.fullname=='Ed Jones'):
+    print(user)
+
+# Query, count
+users_count = session.query(User).count()
+
+# 单纯的query并不会出发sql查询，until the count() is called
+# 所以query是some type，count是some type，可能是类似返回result的函数
+q = session.query(User)
+print(q.count())
+
+# Query, origin SQL
+session.query(User).from_statement(
+    text("SELECT * FROM users where name=:name")).params(name='ed').all()
+
+# Add related objects
+jack = User(name='jack', fullname='Jack Bean', nickname='gjffdd')
+jack.addresses = [
+    Address(email_address='jack@google.com'),
+    Address(email_address='j25@yahoo.com')]
+session.add(jack)
+session.commit()
+
+# Query related objects
+jack = session.query(User).filter_by(name='jack').one()
+print(jack)
+for address in jack.addresses:
+    print(address.email_address)
+
+# Delete object, jack is querried up there
+session.delete(jack)
+session.query(User).filter_by(name='jack').count()
+
+# TODO: the difference between filter and filter_by
+#+end_src
+
 * Openstack
 ** call back
 #+begin_src python :results output
@@ -316,3 +433,5 @@ do_notify()
 ** click
 
 ** lambda
+
+** more powerful python shell
