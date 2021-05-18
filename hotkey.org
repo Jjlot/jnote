@@ -102,3 +102,19 @@ set -g display-panes-time 5000
 ** Paste from history
 Alt + Y
 
+** debug
+*** debug scratch
+shift + f9
+
+*** step into
+f7
+
+*** step over
+f8
+
+*** run to cursor
+alt + f9
+
+*** stop debug
+ctrl + f2
+

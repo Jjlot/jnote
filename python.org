@@ -45,6 +45,14 @@ dir(list) or dir(<Class name>) or dir(<Object name>)
 *** join
 '-'.join(('prefix', 'infix', 'postfix'))
 
+** utf-8 comments
+# -*- coding: utf-8 -*-
+
+** path
+//usr/local/lib64/python3.6/site-packages/
+
+/usr/lib/python2.7/site-packages
+
 * Code sections
 ** 强制子类重写父类中的方法
 #+begin_src python :results output
@@ -255,6 +263,7 @@ print(n)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String
+from sqlalchemy import func
 from sqlalchemy import text
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import sessionmaker
@@ -264,7 +273,7 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 # The in-memory-only SQLite database from sqlalchemy tutorial
 # more common sample is 'mysql+pymysql://root@127.0.0.1/sparrow_player'
-engine = create_engine('sqlite:///:memory:', echo=True)
+engine = create_engine('sqlite:///:memory:', echo=True, pool_recycle=3600)
 
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -338,6 +347,9 @@ users_count = session.query(User).count()
 q = session.query(User)
 print(q.count())
 
+# Efficient count
+print(session.query(func.count(User.id)).scalar())
+
 # Query, origin SQL
 session.query(User).from_statement(
     text("SELECT * FROM users where name=:name")).params(name='ed').all()
@@ -360,7 +372,23 @@ for address in jack.addresses:
 session.delete(jack)
 session.query(User).filter_by(name='jack').count()
 
-# TODO: the difference between filter and filter_by
+# is active
+session.is_active
+
+#+end_src
+*** transaction
+with session.begin(subtransactions=True):
+
+*** Configuring Logging
+**** logging to sys.stdout when create_engine()
+create_engine.echo
+
+create_engine.echo_pool
+
+**** python logging
+#+begin_src python :results output
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 #+end_src
 
 * Openstack
@@ -434,4 +462,9 @@ do_notify()
 
 ** lambda
 
-** more powerful python shell
+** @abc.abstractmethod
+修饰的抽象类的函数入参怎么写
+
+子类入参要完全一致吗
+
+可以控制子类必须包含哪些入参吗
