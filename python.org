@@ -374,7 +374,6 @@ session.query(User).filter_by(name='jack').count()
 
 # is active
 session.is_active
-
 #+end_src
 *** transaction
 with session.begin(subtransactions=True):
@@ -390,6 +389,17 @@ create_engine.echo_pool
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 #+end_src
+
+** setuptools
+python3 setup.py bdist_rpm
+*** pbr
+
+*** files
+**** packages
+指定需要包含的包，行为类似于setuptools.find_packages
+
+**** data_files
+指定目的目录和源文件路径
 
 * Openstack
 ** call back
