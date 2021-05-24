@@ -63,6 +63,23 @@ https://www.jianshu.com/p/943b90150c10
 kill -9 `ps aux | grep neutron-server`
 
 ** ssh
+*** 本地端口转发
+ssh -L 13306:100.1.1.1:3306 200.1.1.1
+
+localhost:13306 --> 200.1.1.1:22 --> 100.1.1.1:3306
+
+本地13306端口通过ssh 200.1.1.1访问100.1.1.1:3306
+
+运行这个命令之后，这个terminal不能退出，否则jump就失效了，添加-f参数可运行于后台，之后只能靠kill来结束了
+
+*** Local bind to remote port
+ssh -L 3306:localhost:3306 100.1.1.1
+
+本地端口转发的一个用法，将本地的port绑定到remote port
+
+*** Run in remote shell through ssh
+ssh root@100.1.1.1 'uname -a'
+
 *** ~/.ssh/config
 Host moka
   HostName 100.1.1.1
