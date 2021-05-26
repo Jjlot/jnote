@@ -1,6 +1,10 @@
 #+STARTUP: showall
 
 * Linux internal
+** Mark
+*** sleep forever
+sleep infinity
+
 ** ps
 *** 常用
 ps -a  显示所有终端下执行的进程，包含其他用户的进程
@@ -59,10 +63,10 @@ ps af
 **** Linux-ps命令学习
 https://www.jianshu.com/p/943b90150c10
 
-** kill
-kill -9 `ps aux | grep neutron-server`
-
 ** ssh
+*** ssh client keepalive
+echo "ServerAliveInterval 60" >> ~/.ssh/config 
+
 *** 本地端口转发
 ssh -L 13306:100.1.1.1:3306 200.1.1.1
 
@@ -699,7 +703,6 @@ curl -I www.baidu.com
 *** 显示通信过程
 curl -v www.baidu.com
 
-
 * todo
 ** netstat
 
@@ -713,6 +716,4 @@ STAT column
 %MEM, VSZ and RSS
 
 ** nc
-
-** crontab
 

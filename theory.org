@@ -37,4 +37,14 @@ REFS: https://www.jianshu.com/p/57620b762160
 (set-clipboard-coding-system 'euc-cn)
 #+end_src
 
+* Difference between `set` and `env`
+Shells can have variables of 2 types: locals and (exported)environment variables
+
+set is build-in command, env is an program from coreutils
+
+定义aae=10，set可见，env不可见
+
+env以process的形式运行，改变了环境变量，原shell的aae=10就看不到了
+
+export aae=10，set和env同时可见
 

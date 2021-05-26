@@ -8,7 +8,30 @@
 | [-]  | 表示在编码顺序内的所有字符。例如[1-7]表示有个字符，范围1到7其中一个  |
 | [^]  | 表示反f向选择。例如表示有一个字符，只要不是a,b,c的其他字符都可以     |
 
+* basic knowledge
+** To turn on the debugging information
+set -x
+
+** Exit immediately if a command exits with a non-zero status
+set -e
+
 * Basic logic
+** if
+#+begin_src sh
+if [ $a == $b ]
+then
+   echo "a is equal to b"
+elif [ $a -gt $b ]
+then
+   echo "a is greater than b"
+elif [ $a -lt $b ]
+then
+   echo "a is less than b"
+else
+   echo "None of the condition met"
+fi
+#+end_src
+
 ** Loop
 #+begin_src shell
   for tb in 10 20;
@@ -45,10 +68,24 @@
   GetKey $section $key
 #+end_src
 
-
 * Code sections
 ** Shell run repeat
 #+BEGIN_SRC shell
   for i in {1..10}; do ./do; done
 #+END_SRC
+
+** Change mysql port forwarding
+#+begin_src sh
+#!/bin/sh
+
+pid=$(ps aux | grep -v 'grep' | grep '3306:127.0.0.1:3306' | awk {'print $2'})
+if [ $pid ]
+then
+    echo "Found local forwarding:" $pid
+    kill -9 $pid
+fi
+
+echo "start port forwarding for host:" $1
+ssh -N -L 3306:127.0.0.1:3306 root@$1 -f sleep infinity
+#+end_src
 
