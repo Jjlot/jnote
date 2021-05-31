@@ -617,3 +617,19 @@ do_notify()
 
 ** python 虚拟环境
 
+
+
+# create the teams table and the players.team_id column
+    Team.__table__.create(bind)
+    op.add_column('players', sa.Column('team_id', sa.ForeignKey('teams.id'), nullable=False)
+
+    # create teams for each team name
+    teams = {name: Team(name=name) for name in session.query(Player.team).distinct()}
+    session.add_all(teams.values())
+
+    # set player team based on team name
+    for player in session.query(Player):
+        player.team = teams[player.team_name]
+
+    session.commit()
+
