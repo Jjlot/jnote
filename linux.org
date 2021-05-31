@@ -325,6 +325,9 @@ git push origin 6.0.2:6.0.2-jing
 *** delete a remote branch
 git push origin --delete 6.0.2-jing
 
+*** rename local branch
+git branch -m old-name new-name
+
 ** Docker
 *** Image
 docker search centos
@@ -717,3 +720,4 @@ STAT column
 
 ** nc
 
+** git

@@ -118,3 +118,11 @@ alt + f9
 *** stop debug
 ctrl + f2
 
+* moba xterm
+** duplicate tab
+ctrl + shift + u
+
+* terminal
+** new line
+ctrl + j
+

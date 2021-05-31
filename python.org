@@ -256,124 +256,124 @@ print(n)
 
 ** sqlalchemy
 #+begin_src python :results output
-# A study logging for Object Relational Tutorial
-# refs from: https://docs.sqlalchemy.org/en/14/orm/tutorial.html
-#
+  # A study logging for Object Relational Tutorial
+  # refs from: https://docs.sqlalchemy.org/en/14/orm/tutorial.html
+  #
 
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String
-from sqlalchemy import func
-from sqlalchemy import text
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import relationship
-
-
-Base = declarative_base()
-# The in-memory-only SQLite database from sqlalchemy tutorial
-# more common sample is 'mysql+pymysql://root@127.0.0.1/sparrow_player'
-engine = create_engine('sqlite:///:memory:', echo=True, pool_recycle=3600)
-
-Session = sessionmaker(bind=engine)
-session = Session()
+  from sqlalchemy.ext.declarative import declarative_base
+  from sqlalchemy import create_engine
+  from sqlalchemy import Column, Integer, String
+  from sqlalchemy import func
+  from sqlalchemy import text
+  from sqlalchemy import ForeignKey
+  from sqlalchemy.orm import sessionmaker
+  from sqlalchemy.orm import relationship
 
 
-class User(Base):
-    __tablename__ = 'users'
+  Base = declarative_base()
+  # The in-memory-only SQLite database from sqlalchemy tutorial
+  # more common sample is 'mysql+pymysql://root@127.0.0.1/sparrow_player'
+  engine = create_engine('sqlite:///:memory:', echo=True, pool_recycle=3600)
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    fullname = Column(String)
-    nickname = Column(String)
+  Session = sessionmaker(bind=engine)
+  session = Session()
 
-    # 不是很理解这东西对谁友好了
-    def __repr__(self):
-        return "<User(name='%s', fullname='%s', nickname='%s')>" % (self.name, self.fullname, self.nickname)
 
-class Address(Base):
-    __tablename__ = 'addresses'
-    id = Column(Integer, primary_key=True)
-    email_address = Column(String, nullable=False)
-    # Indicate the foreigner key
-    user_id = Column(Integer, ForeignKey('users.id'))
+  class User(Base):
+      __tablename__ = 'users'
 
-    # TODO: Address表中的user是User表，back_populates是干啥的？
-    user = relationship("User", back_populates="addresses")
+      id = Column(Integer, primary_key=True)
+      name = Column(String)
+      fullname = Column(String)
+      nickname = Column(String)
 
-# User表中的address是Address表
-User.addresses = relationship(
-    "Address", order_by=Address.id, back_populates="user")
+      # 不是很理解这东西对谁友好了
+      def __repr__(self):
+          return "<User(name='%s', fullname='%s', nickname='%s')>" % (self.name, self.fullname, self.nickname)
 
-# TODO: 这句可能是create table的
-Base.metadata.create_all(engine)
+  class Address(Base):
+      __tablename__ = 'addresses'
+      id = Column(Integer, primary_key=True)
+      email_address = Column(String, nullable=False)
+      # Indicate the foreigner key
+      user_id = Column(Integer, ForeignKey('users.id'))
 
-# Add one objects
-ed_user = User(name='ed', fullname='Ed Jones', nickname='edsnickname')
-session.add(ed_user)
-session.commit()
+      # TODO: Address表中的user是User表，back_populates是干啥的？
+      user = relationship("User", back_populates="addresses")
 
-# Add multi objects
-session.add_all([
-    User(name='wendy', fullname='Wendy Williams', nickname='windy'),
-    User(name='mary', fullname='Mary Contrary', nickname='mary'),
-    User(name='fred', fullname='Fred Flintstone', nickname='freddy')])
-session.commit()
+  # User表中的address是Address表
+  User.addresses = relationship(
+      "Address", order_by=Address.id, back_populates="user")
 
-# Query
-our_user = session.query(User).\
-    filter_by(name='ed').first()
-print(our_user)
+  # TODO: 这句可能是create table的
+  Base.metadata.create_all(engine)
 
-# Query, order_by
-for instance in session.query(User).order_by(User.id):
-    print(instance.name, instance.fullname)
+  # Add one objects
+  ed_user = User(name='ed', fullname='Ed Jones', nickname='edsnickname')
+  session.add(ed_user)
+  session.commit()
 
-# Query, indicate column
-for name, fullname in session.query(User.name, User.fullname):
-    print(name, fullname)
+  # Add multi objects
+  session.add_all([
+      User(name='wendy', fullname='Wendy Williams', nickname='windy'),
+      User(name='mary', fullname='Mary Contrary', nickname='mary'),
+      User(name='fred', fullname='Fred Flintstone', nickname='freddy')])
+  session.commit()
 
-# Query, filter
-for user in session.query(User).\
-        filter(User.name=='ed').\
-        filter(User.fullname=='Ed Jones'):
-    print(user)
+  # Query
+  our_user = session.query(User).\
+      filter_by(name='ed').first()
+  print(our_user)
 
-# Query, count
-users_count = session.query(User).count()
+  # Query, order_by
+  for instance in session.query(User).order_by(User.id):
+      print(instance.name, instance.fullname)
 
-# 单纯的query并不会出发sql查询，until the count() is called
-# 所以query是some type，count是some type，可能是类似返回result的函数
-q = session.query(User)
-print(q.count())
+  # Query, indicate column
+  for name, fullname in session.query(User.name, User.fullname):
+      print(name, fullname)
 
-# Efficient count
-print(session.query(func.count(User.id)).scalar())
+  # Query, filter
+  for user in session.query(User).\
+          filter(User.name=='ed').\
+          filter(User.fullname=='Ed Jones'):
+      print(user)
 
-# Query, origin SQL
-session.query(User).from_statement(
-    text("SELECT * FROM users where name=:name")).params(name='ed').all()
+  # Query, count
+  users_count = session.query(User).count()
 
-# Add related objects
-jack = User(name='jack', fullname='Jack Bean', nickname='gjffdd')
-jack.addresses = [
-    Address(email_address='jack@google.com'),
-    Address(email_address='j25@yahoo.com')]
-session.add(jack)
-session.commit()
+  # 单纯的query并不会出发sql查询，until the count() is called
+  # 所以query是some type，count是some type，可能是类似返回result的函数
+  q = session.query(User)
+  print(q.count())
 
-# Query related objects
-jack = session.query(User).filter_by(name='jack').one()
-print(jack)
-for address in jack.addresses:
-    print(address.email_address)
+  # Efficient count
+  print(session.query(func.count(User.id)).scalar())
 
-# Delete object, jack is querried up there
-session.delete(jack)
-session.query(User).filter_by(name='jack').count()
+  # Query, origin SQL
+  session.query(User).from_statement(
+      text("SELECT * FROM users where name=:name")).params(name='ed').all()
 
-# is active
-session.is_active
+  # Add related objects
+  jack = User(name='jack', fullname='Jack Bean', nickname='gjffdd')
+  jack.addresses = [
+      Address(email_address='jack@google.com'),
+      Address(email_address='j25@yahoo.com')]
+  session.add(jack)
+  session.commit()
+
+  # Query related objects
+  jack = session.query(User).filter_by(name='jack').one()
+  print(jack)
+  for address in jack.addresses:
+      print(address.email_address)
+
+  # Delete object, jack is querried up there
+  session.delete(jack)
+  session.query(User).filter_by(name='jack').count()
+
+  # is active
+  session.is_active
 #+end_src
 *** transaction
 with session.begin(subtransactions=True):
@@ -388,6 +388,142 @@ create_engine.echo_pool
 #+begin_src python :results output
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+#+end_src
+
+*** one to one (without reverse)
+#+begin_src python :results output
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
+
+Base = declarative_base()
+engine = create_engine('sqlite:///:memory:', echo=False, pool_recycle=3600)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    address = relationship("Address", uselist=False)
+
+class Address(Base):
+    __tablename__ = 'addresses'
+    id = Column(Integer, primary_key=True)
+    email_address = Column(String, nullable=False)
+
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+Base.metadata.create_all(engine)
+
+# Add related objects
+jack = User(name='jack')
+jack.address = Address(email_address='jack@google.com')
+session.add(jack)
+session.commit()
+
+jack = session.query(User).filter_by(name='jack').one()
+print('user: %s, email: %s' % (jack.name, jack.address.email_address))
+#+end_src
+*** one to one (with reverse)
+#+begin_src python :results output
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
+
+Base = declarative_base()
+engine = create_engine('sqlite:///:memory:', echo=False, pool_recycle=3600)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    address = relationship("Address", uselist=False, back_populates="user")
+
+class Address(Base):
+    __tablename__ = 'addresses'
+    id = Column(Integer, primary_key=True)
+    email_address = Column(String, nullable=False)
+
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship("User", back_populates="address")
+
+Base.metadata.create_all(engine)
+
+# Add related objects
+jack = User(name='jack')
+jack.address = Address(email_address='jack@google.com')
+session.add(jack)
+session.commit()
+
+jack = session.query(User).filter_by(name='jack').one()
+print('user: %s, email: %s' % (jack.name, jack.address.email_address))
+
+jack = session.query(Address).filter_by(email_address='jack@google.com').one()
+print(jack.user.name)
+#+end_src
+*** one to many
+#+begin_src python :results output
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
+
+Base = declarative_base()
+engine = create_engine('sqlite:///:memory:', echo=False, pool_recycle=3600)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    address = relationship("Address", uselist=True, back_populates="user")
+
+class Address(Base):
+    __tablename__ = 'addresses'
+    id = Column(Integer, primary_key=True)
+    email_address = Column(String, nullable=False)
+
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship("User", back_populates="address")
+
+Base.metadata.create_all(engine)
+
+# Add related objects
+jack = User(name='jack')
+jack.address = [
+    Address(email_address='jack@google.com'),
+    Address(email_address='jack@yahoo.com')
+    ]
+session.add(jack)
+session.commit()
+
+jack = session.query(User).filter_by(name='jack').one()
+for address in jack.address:
+    print('user: %s, email: %s' % (jack.name, address.email_address))
+
+jack = session.query(Address).filter_by(email_address='jack@google.com').one()
+print(jack.user.name)
 #+end_src
 
 ** setuptools

@@ -106,7 +106,7 @@ select * from ports limit 1;
 *** like
 select * from networks where name like 'jing%';
 
-*** order
+*** sort
 select device_id from ports where device_owner = 'network:floatingip' order by device_id;
 
 *** count
