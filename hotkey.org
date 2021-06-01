@@ -77,6 +77,9 @@ C-c C-t (org-todo)
 ~/.tmux.conf
 
 ** Normal hotkeys
+*** switch session
+C-b s
+
 *** rename session
 C-b $
 
