@@ -1,6 +1,19 @@
 #+STARTUP: showall
 
 * Emacs
+** emacsclient
+*** start emacs daemon
+emacs --daemon
+
+*** client attach
+emacsclient -c
+
+*** client detach
+C-x C-c
+
+*** terminal support theme
+export TERM=xterm-256color
+
 ** org-togle
 *** org-toggle-heading
 C-c C-*
