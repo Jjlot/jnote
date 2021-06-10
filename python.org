@@ -54,6 +54,23 @@ dir(list) or dir(<Class name>) or dir(<Object name>)
 /usr/lib/python2.7/site-packages
 
 * Code sections
+** Generate a new table from a known table
+#+begin_src python :results output
+# create the teams table and the players.team_id column
+Team.__table__.create(bind)
+op.add_column('players', sa.Column('team_id', sa.ForeignKey('teams.id'), nullable=False)
+
+# create teams for each team name
+teams = {name: Team(name=name) for name in session.query(Player.team).distinct()}
+session.add_all(teams.values())
+
+# set player team based on team name
+for player in session.query(Player):
+player.team = teams[player.team_name]
+
+session.commit()
+#+end_src
+
 ** 强制子类重写父类中的方法
 #+begin_src python :results output
 import abc
@@ -136,6 +153,35 @@ with Timer("List Comprehension Example"):
 #+end_src
 
 * Packages
+** unittest
+*** basic sample
+#+begin_src python :results output
+import unittest
+
+class TestStringMethods(unittest.TestCase):
+
+    def test_upper(self):
+        self.assertEqual('foo'.upper(), 'FOO')
+
+    def test_isupper(self):
+        self.assertTrue('FOO'.isupper())
+        self.assertFalse('Foo'.isupper())
+
+    def test_split(self):
+        s = 'hello world'
+        self.assertEqual(s.split(), ['hello', 'world'])
+        # check that s.split fails when the separator is not a string
+        with self.assertRaises(TypeError):
+            s.split(2)
+
+if __name__ == '__main__':
+    unittest.main()
+#+end_src
+*** run
+python3 test.py
+
+python3 test.py -v
+
 ** prettytable
 #+begin_src python :results output
 from prettytable import PrettyTable
@@ -526,6 +572,10 @@ jack = session.query(Address).filter_by(email_address='jack@google.com').one()
 print(jack.user.name)
 #+end_src
 
+*** distinct
+
+*** in_
+
 ** setuptools
 python3 setup.py bdist_rpm
 *** pbr
@@ -616,20 +666,4 @@ do_notify()
 可以控制子类必须包含哪些入参吗
 
 ** python 虚拟环境
-
-
-
-# create the teams table and the players.team_id column
-    Team.__table__.create(bind)
-    op.add_column('players', sa.Column('team_id', sa.ForeignKey('teams.id'), nullable=False)
-
-    # create teams for each team name
-    teams = {name: Team(name=name) for name in session.query(Player.team).distinct()}
-    session.add_all(teams.values())
-
-    # set player team based on team name
-    for player in session.query(Player):
-        player.team = teams[player.team_name]
-
-    session.commit()
 
