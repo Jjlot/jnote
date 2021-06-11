@@ -3,6 +3,22 @@
 
 
 * Basic knowledge
+** import
+*** import from self
+#+begin_src python :results output
+class What(object):
+    @staticmethod
+    def what_is_what():
+        print('what is what')
+
+
+What.what_is_what()
+
+
+from . import What as where
+where.what_is_what()
+#+end_src
+
 ** Format output
 #+begin_src python :results output
 print("a = %s, b = %s" % (a, b))
@@ -160,7 +176,26 @@ import unittest
 
 class TestStringMethods(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        '''Class执行前运行这个'''
+        print("-->setUpClass")
+
+    @classmethod
+    def tearDownClass(cls):
+        '''Class执行结束后运行这个'''
+        print("-->tearDownClass")
+
+    def setUp(self):
+        '''每个test case执行前运行这个'''
+        print("\n---->setUp")
+
+    def tearDown(self):
+        '''test case执行完运行这个'''
+        print("---->tearDown")
+
     def test_upper(self):
+        '''打印结果的时候可以看到这一行'''
         self.assertEqual('foo'.upper(), 'FOO')
 
     def test_isupper(self):
@@ -174,9 +209,29 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError):
             s.split(2)
 
+    @unittest.skip("I don't want to run this case.")
+    def test_skip(self):
+        print("you'll never see this")
+
+
 if __name__ == '__main__':
     unittest.main()
+
+"""
+if __name__ == '__main__':
+    '''以suite方式运行'''
+    suite = unittest.TestSuite()
+
+    suite.addTest(TestStringMethods('test_upper'))
+
+    # tests = [TestMathFunc("test_add"), TestMathFunc("test_minus"), TestMathFunc("test_divide")]
+    # suite.addTests(tests)
+
+    runner = unittest.TextTestRunner(verbosity=2)
+    runner.run(suite)
+"""
 #+end_src
+
 *** run
 python3 test.py
 
@@ -573,8 +628,12 @@ print(jack.user.name)
 #+end_src
 
 *** distinct
+指定字段去重的结果
 
-*** in_
+db.session.query(User).distinct(User.name).all()
+
+*** in_, notin_
+session.query(User).filter(User.name.in_(user_name_list)).all()
 
 ** setuptools
 python3 setup.py bdist_rpm

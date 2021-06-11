@@ -721,3 +721,5 @@ STAT column
 ** nc
 
 ** git
+
+** zcat
