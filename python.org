@@ -172,30 +172,32 @@ with Timer("List Comprehension Example"):
 ** unittest
 *** basic sample
 #+begin_src python :results output
+# -*- coding: utf-8 -*-
+
 import unittest
 
 class TestStringMethods(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        '''Class执行前运行这个'''
+        """Class执行前运行这个"""
         print("-->setUpClass")
 
     @classmethod
     def tearDownClass(cls):
-        '''Class执行结束后运行这个'''
+        """Class执行结束后运行这个"""
         print("-->tearDownClass")
 
     def setUp(self):
-        '''每个test case执行前运行这个'''
+        """每个test case执行前运行这个"""
         print("\n---->setUp")
 
     def tearDown(self):
-        '''test case执行完运行这个'''
+        """test case执行完运行这个"""
         print("---->tearDown")
 
     def test_upper(self):
-        '''打印结果的时候可以看到这一行'''
+        """打印结果的时候可以看到这一行"""
         self.assertEqual('foo'.upper(), 'FOO')
 
     def test_isupper(self):
@@ -216,26 +218,40 @@ class TestStringMethods(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-"""
-if __name__ == '__main__':
-    '''以suite方式运行'''
-    suite = unittest.TestSuite()
-
-    suite.addTest(TestStringMethods('test_upper'))
-
-    # tests = [TestMathFunc("test_add"), TestMathFunc("test_minus"), TestMathFunc("test_divide")]
-    # suite.addTests(tests)
-
-    runner = unittest.TextTestRunner(verbosity=2)
-    runner.run(suite)
-"""
 #+end_src
 
 *** run
 python3 test.py
 
 python3 test.py -v
+
+** mock
+*** patch
+#+begin_src python :results output
+from unittest.mock import patch
+
+
+class ProductionClass(object):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def method(a, b, c):
+        print('method is called', a, b, c)
+
+
+def say_something():
+    print('ok i will say something')
+
+
+with patch.object(ProductionClass, 'method', return_value=None, side_effect=say_something()) as mock_method:
+    thing = ProductionClass()
+    thing.method(1, 2, 3)
+
+
+thing = ProductionClass()
+thing.method(1, 2, 3)
+#+end_src
 
 ** prettytable
 #+begin_src python :results output
