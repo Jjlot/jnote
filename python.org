@@ -169,6 +169,38 @@ with Timer("List Comprehension Example"):
 #+end_src
 
 * Packages
+** flake8
+将 PEP 8、Pyflakes（类似 Pylint）、McCabe（代码复杂性检查器）和第三方插件整合到一起，以检查 Python 代码风格和质量的一个 Python 工具
+
+files that contain this line are skipped: #flake8: noqa
+
+lines that contain a # noqa comment at the end will not issue warnings.
+
+针对目前pep8尚未支持命名规范的检查，有人开发出了此款插件作为规则补充。
+
+pep8-naming插件安装完成之后，会新增一类错误返回码以N开头：N***: pep8-naming返回的错误类型。
+
+*** install
+pip install pep8-naming
+
+*** commond sample
+flake8 --max-line-length=130 --exclude migration,tests --max-complexity 12
+
+*** pep8
+Style Guide for Python Code
+
+*** awesome-flake8-extensions
+https://github.com/DmytroLitvinov/awesome-flake8-extensions
+
+** tox
+tox aims to automate and standardize testing in Python.
+
+是用来管理和构建虚拟环境(virtualenv)的。对于一个项目，我们需要运行Python 2.7的单元测试，也需要运行Python 3.4的单元测试，还需要运行PEP8的代码检查。这些不同的任务需要依赖不同的库，所以需要使用不同的虚拟环境。使用tox的时候，我们会在tox的配置文件 tox.ini 中指定不同任务的虚拟环境名称，该任务在虚拟环境中需要安装哪些包，以及该任务执行的时候需要运行哪些命令。
+
+pip3 install tox
+
+tox -v -e py36
+
 ** unittest
 *** basic sample
 #+begin_src python :results output
@@ -740,5 +772,15 @@ do_notify()
 
 可以控制子类必须包含哪些入参吗
 
-** python 虚拟环境
+** virtualenv
+
+** testr
+
+** what is this?
+test tcp-connection 135.242.143.93 22[10]
+
+** coverage erase
+coverage erase
+           py.test --cov={toxinidir}/src -sx tests
+           coverage html
 
