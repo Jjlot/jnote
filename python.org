@@ -3,6 +3,25 @@
 
 
 * Basic knowledge
+** 字典代替复杂的if-else分支
+#+begin_src python :results output
+def f(x):
+    if x == 'a':
+        return 1
+    elif x == 'b':
+        return 2
+    else:
+        return 9
+#+end_src
+
+#+begin_src python :results output
+def f(x):
+    return {
+        'a': 1,
+        'b': 2
+    }.get(x, 9)
+#+end_src
+
 ** import
 *** import from self
 #+begin_src python :results output
@@ -772,8 +791,6 @@ do_notify()
 
 可以控制子类必须包含哪些入参吗
 
-** virtualenv
-
 ** testr
 
 ** what is this?
@@ -783,4 +800,28 @@ test tcp-connection 135.242.143.93 22[10]
 coverage erase
            py.test --cov={toxinidir}/src -sx tests
            coverage html
+
+** fabric
+
+** virtualenv
+*** setup
+pip install virtualenv
+
+*** create env
+virtualenv test-env
+
+virtualenv -p /usr/bin/python2.7 env27
+
+*** use & unuse
+source env2.7/bin/activate
+
+deactivate
+
+*** TODO virtualenvwrapper
+virtualenvwrapper
+
+** requirements
+pip freeze > requirements.txt
+
+pip install -r requirements.txt
 

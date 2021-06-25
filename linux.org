@@ -546,7 +546,7 @@ lsof -n
 lsof -P
 
 *** Find IPv4 /IPv6 Socket file
-lsof -i@100.1.1.1
+lsof -i@100.1.1.1:9696
 
 *** List all Process or Commands that belongs to a Process I
 lsof -p 2842
@@ -721,5 +721,7 @@ STAT column
 ** nc
 
 ** git
+tag
 
 ** zcat
+

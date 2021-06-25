@@ -134,6 +134,12 @@ alt + f9
 *** stop debug
 ctrl + f2
 
+*** type hierarchy
+ctrl + h
+
+*** call hierarchy
+ctl + alt + h
+
 * moba xterm
 ** duplicate tab
 ctrl + shift + u

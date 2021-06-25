@@ -8,7 +8,9 @@ openstack user create --password-prompt jing
 
 openstack role add --project jing --user jing _member_
 
-cp keystonerc_admin keystonerc_jing
+cp ~/keystonerc_admin ~/keystonerc_jing
+
+vim ~/keystonerc_jing
 
 * Neutron
 ** router
@@ -94,4 +96,35 @@ openstack image create "cirros" --file /home/cirros-0.5.1-aarch64-disk.img --dis
 
 ** image-download
 glance image-download --file /home/jing/centos.qcow2 7a43bc07-0927-4d6b-8a00-7f1bcd1a7c2c
+
+* tempest
+git clone https://opendev.org/openstack/tempest
+
+pip install tempest/
+
+tempest init cloud-01
+
+tempest run --workspace cloud-01
+
+tempest run --config etc/tempest.conf --regex tempest.scenario
+
+https://docs.openstack.org/tempest/latest/overview.html
+
+https://docs.openstack.org/tempest/latest/configuration.html
+
+* keystone_rc
+unset OS_SERVICE_TOKEN
+    export OS_USERNAME=admin
+    export OS_PASSWORD='admin'
+    export OS_REGION_NAME=RegionOne
+    export OS_AUTH_URL=http://192.168.56.107:5000/v3
+    export PS1='[\u@\h \W(keystone_admin)]\$ '
+
+export OS_PROJECT_NAME=admin
+export OS_USER_DOMAIN_NAME=Default
+export OS_PROJECT_DOMAIN_NAME=Default
+export OS_IDENTITY_API_VERSION=3
+
+** modify PS1 in my zsh
+export PS1='(keystone_admin) %(?:%{%}? :%{%}? ) %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_info)'
 
