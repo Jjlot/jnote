@@ -3,6 +3,25 @@
 
 
 * Basic knowledge
+** argv and kwargs (key word args)
+#+begin_src python :results output
+def argv_and_kwargs(*argv, **kwargs):
+    for arg in argv:
+        print("another arg through *argv:", arg)
+    for key, value in kwargs.items():
+        print("{0} = {1}".format(key, value))
+
+
+argv_and_kwargs('yasoob', 'python', name="yasoob")
+#+end_src
+
+** path include current directory
+#+begin_src python :results output
+import sys
+from os.path import abspath, dirname
+sys.path.append(dirname(dirname(abspath(__file__))))
+#+end_src
+
 ** 字典代替复杂的if-else分支
 #+begin_src python :results output
 def f(x):
@@ -116,20 +135,6 @@ class Animal(object):
     @abc.abstractmethod
     def speak(self):
         pass
-#+end_src
-
-** 单例模式
-*** Method 2
-#+begin_src python :results output
-_CALLBACK_MANAGER = None
-
-def _get_callback_manager():
-    global _CALLBACK_MANAGER
-    if _CALLBACK_MANAGER is None:
-        _CALLBACK_MANAGER = manager.CallbacksManager()
-    return _CALLBACK_MANAGER
-
-_get_callback_manager().subscribe(callback, resource, event, priority)
 #+end_src
 
 ** Time duration
@@ -777,6 +782,34 @@ def do_notify():
 print('Notifying...')
 do_notify()
 
+#+end_src
+
+* design pattern - 设计模式
+** singleton - 单例模式
+*** Method 1
+#+begin_src python :results output
+class Logger(object):
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            print('Creating the object')
+            cls._instance = super(Logger, cls).__new__(cls)
+            # Put any initialization here.
+        return cls._instance
+#+end_src
+
+*** Method 2
+#+begin_src python :results output
+_CALLBACK_MANAGER = None
+
+def _get_callback_manager():
+    global _CALLBACK_MANAGER
+    if _CALLBACK_MANAGER is None:
+        _CALLBACK_MANAGER = manager.CallbacksManager()
+    return _CALLBACK_MANAGER
+
+_get_callback_manager().subscribe(callback, resource, event, priority)
 #+end_src
 
 * Todo
