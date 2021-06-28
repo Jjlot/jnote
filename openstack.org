@@ -4,13 +4,15 @@
 ** Openstack create user
 openstack project create jing
 
-openstack user create --password-prompt jing
+openstack user create --password jing jing
 
 openstack role add --project jing --user jing _member_
 
 cp ~/keystonerc_admin ~/keystonerc_jing
 
-vim ~/keystonerc_jing
+sed -i 's/admin/jing/g' ~/keystonerc_jing
+
+openstack role assignment list --names
 
 * Neutron
 ** router

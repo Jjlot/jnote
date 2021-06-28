@@ -1,6 +1,9 @@
 #+STARTUP: showall
 
 * Linux internal
+** cp
+cp tempest/{config.py,config.bak}
+
 ** Mark
 *** sleep forever
 sleep infinity
@@ -327,6 +330,18 @@ git push origin --delete 6.0.2-jing
 
 *** rename local branch
 git branch -m old-name new-name
+
+*** git merge master into a branch
+https://superuser.com/questions/224085/git-merge-master-into-a-branch
+**** rebase
+      A---B---C feature                             A'--B'--C' feature
+     /                   --rebase-->               /
+D---E---F---G master                  D---E---F---G master
+
+**** merge
+      A---B---C feature                    A---B---C feature
+     /                   --merge-->       /         \
+D---E---F---G master                 D---E---F---G---M master
 
 ** Docker
 *** Image
