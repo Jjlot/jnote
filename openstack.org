@@ -1,5 +1,21 @@
 #+STARTUP: showall
 
+* pack stack
+** install
+sudo yum update -y
+
+sudo yum install -y centos-release-openstack-train
+
+sudo yum update -y
+
+sudo yum install -y openstack-packstack
+
+sudo packstack --allinone
+
+packstack --gen-answer-file=answers.txt
+
+packstack --answer-file answers.txt
+
 * Openstack
 ** Openstack create user
 openstack project create jing
@@ -106,12 +122,22 @@ pip install tempest/
 
 tempest init cloud-01
 
+tempest run -l
+
 tempest run --workspace cloud-01
 
 tempest run --config etc/tempest.conf --regex tempest.scenario
 
+** 企业环境下的OpenStack自动化功能测试
+https://www.shuzhiduo.com/A/WpdK7B9ndV/
+
+** Tempest Test Writing Guide
+https://docs.openstack.org/tempest/latest/write_tests.html
+
+** Tempest - The OpenStack Integration Test Suite
 https://docs.openstack.org/tempest/latest/overview.html
 
+** Tempest Configuration Guide
 https://docs.openstack.org/tempest/latest/configuration.html
 
 * keystone_rc

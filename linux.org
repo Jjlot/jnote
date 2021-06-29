@@ -124,6 +124,9 @@ Host mubiaoji
  ProxyCommand ssh -q -x -W %h:%p tiaoban
 
 ** sed
+*** Replacing all occurrences of one string with another in all files in the current directory
+ find . -type f -exec sed -i 's/foo/bar/g' {} +
+
 *** Command sample
 sed -i 's/shanghai/nanjing/g' input.json
 
@@ -333,6 +336,7 @@ git branch -m old-name new-name
 
 *** git merge master into a branch
 https://superuser.com/questions/224085/git-merge-master-into-a-branch
+
 **** rebase
       A---B---C feature                             A'--B'--C' feature
      /                   --rebase-->               /
@@ -342,6 +346,13 @@ D---E---F---G master                  D---E---F---G master
       A---B---C feature                    A---B---C feature
      /                   --merge-->       /         \
 D---E---F---G master                 D---E---F---G---M master
+
+*** 用rebase合并
+https://backlog.com/git-tutorial/cn/stepup/stepup2_8.html
+
+*** Git进阶之合并多次commit
+
+https://blog.csdn.net/yinchuan_111/article/details/106913632
 
 ** Docker
 *** Image

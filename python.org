@@ -103,6 +103,8 @@ dir(list) or dir(<Class name>) or dir(<Object name>)
 # -*- coding: utf-8 -*-
 
 ** path
+python3 -m site
+
 //usr/local/lib64/python3.6/site-packages/
 
 /usr/lib/python2.7/site-packages
