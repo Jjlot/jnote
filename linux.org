@@ -1,6 +1,11 @@
 #+STARTUP: showall
 
 * Linux internal
+** selinux
+setenforce 0
+
+/etc/sysconfig/selinux
+
 ** cp
 cp tempest/{config.py,config.bak}
 
@@ -125,7 +130,7 @@ Host mubiaoji
 
 ** sed
 *** Replacing all occurrences of one string with another in all files in the current directory
- find . -type f -exec sed -i 's/foo/bar/g' {} +
+find . -type f -exec sed -i 's/foo/bar/g' {} +
 
 *** Command sample
 sed -i 's/shanghai/nanjing/g' input.json

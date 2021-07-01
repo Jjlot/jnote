@@ -115,6 +115,15 @@ ctrl-b :set display-panes-time 5000
 set -g display-panes-time 5000
 
 * pycharm
+** bookmarks
+*** add bookmark
+ctrl + shift + <0-9>
+
+F11
+
+*** show bookmark
+shift + F11
+
 ** Paste from history
 Alt + Y
 

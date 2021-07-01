@@ -195,6 +195,12 @@ with Timer("List Comprehension Example"):
 #+end_src
 
 * Packages
+** ipaddress
+*** 
+ipaddress.ip_address('192.0.2.1')
+
+ipaddress.ip_network('192.168.1.1/24',strict=False)
+
 ** flake8
 将 PEP 8、Pyflakes（类似 Pylint）、McCabe（代码复杂性检查器）和第三方插件整合到一起，以检查 Python 代码风格和质量的一个 Python 工具
 
@@ -859,4 +865,40 @@ virtualenvwrapper
 pip freeze > requirements.txt
 
 pip install -r requirements.txt
+
+** threading local
+
+** ipaddress
+python ipaddress模块使用
+
+https://blog.csdn.net/fourinches/article/details/90447505
+
+#+begin_src python :results output
+import ipaddress
+
+ip = ipaddress.ip_address('192.168.0.1')
+ip = ipaddress.ip_address(0xc0a80001)
+ip = ipaddress.ip_address(0b11000000101010000000000000000001)
+ip = ipaddress.ip_address(b'\xc0\xa8\x00\x01')
+
+hex(int(ip))
+bin(int(ip))
+ip.packed
+
+
+ipaddress.ip_network('192.168.1.0/24')
+
+ipaddress.ip_network('192.168.1.1/24',strict=False)
+
+net = ipaddress.ip_network('192.168.1.0/24')
+
+net.num_addresses
+
+net.netmask
+
+type(net.hosts())
+
+net2 = ipaddress.ip_network('192.168.1.0/26')
+list(net.address_exclude(net2))
+#+end_src
 

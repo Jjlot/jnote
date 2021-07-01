@@ -2,6 +2,9 @@
 
 * pack stack
 ** install
+# <2021-06-30 Wed>
+# disable selinux first when install to centos 7.1810
+# and i reboot the server after the last time running `yum update`, then remove the old kernel
 sudo yum update -y
 
 sudo yum install -y centos-release-openstack-train
@@ -10,11 +13,12 @@ sudo yum update -y
 
 sudo yum install -y openstack-packstack
 
-sudo packstack --allinone
-
 packstack --gen-answer-file=answers.txt
 
 packstack --answer-file answers.txt
+
+# did not try this till now
+sudo packstack --allinone
 
 * Openstack
 ** Openstack create user
