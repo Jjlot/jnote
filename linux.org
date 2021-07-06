@@ -327,6 +327,8 @@ gcc -v
 *** tcpdump -xx -tt 直接把报文用十六进制打印出来
 
 ** Git
+git log --oneline
+
 *** create a new local branch
 git checkout -b dev
 
@@ -356,6 +358,8 @@ D---E---F---G master                 D---E---F---G---M master
 https://backlog.com/git-tutorial/cn/stepup/stepup2_8.html
 
 *** Git进阶之合并多次commit
+
+git rebase -i [commit_id]
 
 https://blog.csdn.net/yinchuan_111/article/details/106913632
 

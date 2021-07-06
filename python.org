@@ -3,6 +3,163 @@
 
 
 * Basic knowledge
+** list生成式
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+l1 = list(range(0, 3))
+l2 = list(range(10, 13))
+l3 = list(range(20, 23))
+
+ji = [a * b * c for a in l1 for b in l2 for c in l3]
+print(ji)
+
+l = list(range(10))
+
+# 常见的情况会加个if过滤
+ji = [a for a in l if a % 2 == 0]
+print(ji)
+# 如果还要else条件的话
+ji = [a if a % 2 == 0 else -1 for a in l]
+print(ji)
+# 0. A list from 0 to 10: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+# 1. filter list中被3整除的数字: [0, 3, 6, 9]
+# 2. for each in filter list, 奇数换成-1: [0, -1, 6, -1]
+# `a if a % 2 == 0 else -1`是一个表达式，必须带else，因为必须根据a计算出结果，类似于这样a, a * 2
+# `if a % 3 == 0`是filter不能带else
+ji = [a if a % 2 == 0 else -1 for a in l if a % 3 == 0]
+print(ji)
+#+end_src
+
+** 切片
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
+l = [a for a in range(20)]
+
+# 前5个
+print(l[:5])
+# 后5个
+print(l[-5:])
+# 指定取，从8开始取出(12-8)个元素来
+print(l[8:12])
+# 前10个每隔2个
+print(l[:10:2])
+# 所有数每隔5个
+print(l[::5])
+# 复制，并不是引用原来的object
+nl = l[:]
+print(nl is l)
+#+end_src
+
+** 函数
+参数定义的顺序必须是：必选参数、默认参数、可变参数、命名关键字参数和关键字参数。
+
+对于任意函数，都可以通过类似func(*args, **kw)的形式调用它，无论它的参数是如何定义的。
+
+*** 可变参数
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# 定义一个函数支持multiple arguments and multiple arguments
+def nothing(*args, **kwargs):
+    # 传入的args类型为tuple
+    print('args type is %s' % type(args))
+    # 传入的kwargs类型为dict
+    print('kwargs type is %s' % type(kwargs))
+
+
+# 一般可以直接call
+nothing(1, 2, 3, pa='ppa', pb='ppb', pc='ppc')
+
+# 也可以把tuple和dict作为入参call
+t = (4, 5, 6)
+d = {
+    'pa': 'ppa',
+    'pb': 'ppb',
+    'pc': 'ppc'
+}
+nothing(*t, **d)
+
+# 还支持list入参call
+nothing([1, 2, 3])
+#+end_src
+
+*** 默认参数
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# 必须保证默认参数是不可变的
+# 否则他所指向的那块内存会被修改，每次得到的结果会不同
+def add_end(L=[]):
+    L.append('END')
+    return L
+
+
+# 输出 ['END']
+print(add_end())
+# 输出 ['END', 'END']
+print(add_end())
+# 输出 ['END', 'END', 'END']
+print(add_end())
+#+end_src
+
+** Inbuilt Data Structures in Python
+list(), dict(), tuple(), set()
+
+*** 只有1个元素的tuple
+(1,)
+
+*** dict迭代
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
+d = {
+    'd1': 1,
+    'd2': 2
+}
+
+# 默认情况下dict迭代key
+for key in d:
+    print(key)
+
+# 也可以迭代value
+for value in d.values():
+    print(value)
+
+# 还可以同时迭代key和value
+for k, v in d.items():
+    print(k, v)
+#+end_src
+
+** python3 中的3种格式化
+*** %s
+print('the sample of %s' % 'percent s')
+
+print('the sample of %d %s' % (2, 'percent s'))
+
+*** format()
+print('the sample of {0}'.format('format()'))
+
+print('the sample of {0} {1}'.format(2, 'format()'))
+
+*** f-string
+num = 2
+
+function = 'f-string'
+
+print(f'the sample of {num} {function}')
+
+** 字符串不转义
+print(r'\n\n')
+
 ** argv and kwargs (key word args)
 #+begin_src python :results output
 def argv_and_kwargs(*argv, **kwargs):
@@ -437,6 +594,9 @@ print(n)
 
 ** sqlalchemy
 #+begin_src python :results output
+  #!/usr/bin/env python3
+  # -*- coding: utf-8 -*-
+
   # A study logging for Object Relational Tutorial
   # refs from: https://docs.sqlalchemy.org/en/14/orm/tutorial.html
   #
@@ -555,6 +715,8 @@ print(n)
 
   # is active
   session.is_active
+
+  session.close()
 #+end_src
 *** transaction
 with session.begin(subtransactions=True):
@@ -821,6 +983,10 @@ _get_callback_manager().subscribe(callback, resource, event, priority)
 #+end_src
 
 * Todo
+** cliff
+*** Cliff框架介绍
+https://blog.csdn.net/bc_vnetwork/article/details/53939946
+
 ** click
 
 ** lambda
@@ -901,4 +1067,6 @@ type(net.hosts())
 net2 = ipaddress.ip_network('192.168.1.0/26')
 list(net.address_exclude(net2))
 #+end_src
+
+** yield
 
