@@ -3,6 +3,37 @@
 
 
 * Basic knowledge
+** filter
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+def is_odd(n):
+    return n % 2 == 1
+
+# filter()把传入的函数依次作用于每个元素，然后根据返回值是True还是False决定保留还是丢弃该元素。
+l = list(filter(is_odd, [1, 2, 4, 5, 6, 9, 10, 15]))
+print(l)
+#+end_src
+
+** map / reduce
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+def f(x):
+    return x * x
+
+
+l = list(range(10))
+
+# l中的每个元素都call f，最后返回一个Iterator
+r = map(f, l)
+
+print(list(l))
+print(list(r))
+#+end_src
+
 ** list生成式
 #+begin_src python :results output
 #!/usr/bin/env python3
@@ -36,7 +67,6 @@ print(ji)
 #+begin_src python :results output
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 
 l = [a for a in range(20)]
 
@@ -266,7 +296,59 @@ python3 -m site
 
 /usr/lib/python2.7/site-packages
 
+** virtualenv
+*** setup
+pip install virtualenv
+
+*** create env
+virtualenv test-env
+
+virtualenv -p /usr/bin/python2.7 env27
+
+*** use & unuse
+source env2.7/bin/activate
+
+deactivate
+
+** requirements
+pip freeze > requirements.txt
+
+pip install -r requirements.txt
+
 * Code sections
+** 埃氏筛法计算素数
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+def _odd_iter():
+    n = 1
+    while True:
+        n = n + 2
+        yield n
+
+
+def _not_divisible(n):
+    return lambda x: x % n > 0
+
+
+def primes():
+    yield 2
+    it = _odd_iter()  # 初始序列
+    while True:
+        n = next(it)  # 返回序列的第一个数
+        yield n
+        it = filter(_not_divisible(n), it)  # 构造新序列
+
+
+# 打印1000以内的素数:
+for n in primes():
+    if n < 1000:
+        print(n)
+    else:
+        break
+#+end_src
+
 ** Generate a new table from a known table
 #+begin_src python :results output
 # create the teams table and the players.team_id column
@@ -1010,27 +1092,8 @@ coverage erase
 
 ** fabric
 
-** virtualenv
-*** setup
-pip install virtualenv
-
-*** create env
-virtualenv test-env
-
-virtualenv -p /usr/bin/python2.7 env27
-
-*** use & unuse
-source env2.7/bin/activate
-
-deactivate
-
-*** TODO virtualenvwrapper
+**  virtualenvwrapper
 virtualenvwrapper
-
-** requirements
-pip freeze > requirements.txt
-
-pip install -r requirements.txt
 
 ** threading local
 
@@ -1069,4 +1132,11 @@ list(net.address_exclude(net2))
 #+end_src
 
 ** yield
+
+
+** map / reduce
+
+** 为什么__new__(cls)然而__init__(self)
+
+** with_for_update, with_lockmode (sqlalchemy)
 
