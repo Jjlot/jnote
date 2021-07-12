@@ -3,6 +3,127 @@
 
 
 * Basic knowledge
+** 多重继承排序
+从DAG途中选择一个没有前驱(即入度为0)的顶点并输出
+从图中删除该顶点和所有以它为起点的有向边。
+重复1和2直到当前DAG图为空或当前途中不存在无前驱的顶点为止。后一种情况说明有向图中必然存在环。
+
+https://www.jianshu.com/p/c9a0b055947b
+
+** 类的属性方法
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+class Desk(object):
+    def __init__(self):
+        self._height = 100
+
+    @property
+    def height(self):
+        return self._height
+
+    # 定义了setter方法使属性可修改
+    @height.setter
+    def height(self, height):
+        print('in setter')
+        self._height = height
+
+    # 定义了getter方法重载了get
+    @height.getter
+    def height(self):
+        print('in getter')
+        return self._height
+
+
+d = Desk()
+d.height = 200
+print(d.height)
+#+end_src
+
+** isinstance
+isinstance([1, 2, 3], (list, tuple))
+
+** 偏函数
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import functools
+
+# Set default b value is 2
+def f(a, b=2):
+    print(b)
+
+
+# print result is 2
+f(10)
+# 定义一个新的偏函数，另b为115200传入
+g = functools.partial(f, b=115200)
+# print result is
+g(115200)
+#+end_src
+
+** decorator
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import functools
+
+
+# 通常装饰器的示例使用的是wrapper
+def decorator_a(func):
+    # 2nd print
+    print('im in decorator_a')
+
+    # 把原始函数的__name__等属性复制到wrapper()函数中
+    @functools.wraps(func)
+    def inner_decorator_a(*args, **kwargs):
+        # 3rd print
+        print('inner decorator_a')
+        # 明明是a，却打印了b的名字
+        print('in the wrapper, functions name is: ', inner_decorator_a.__name__)
+        return func(*args, **kwargs)
+    return inner_decorator_a
+
+
+# 当然也可以把函数拆分出来
+def inner_decorator_b(a, b):
+    # 4th print
+    print('inner decorator_b')
+    print('closure')
+    print(a + b)
+
+
+# 装饰器是一种高阶函数
+# 他的入参是被调用的原函数f，出参是被置换的另一个函数
+def decorator_b(func):
+    # 1st print
+    print('im in decorator_b')
+    return inner_decorator_b
+
+
+# 如果decorator本身需要传入参数，那就需要编写一个返回decorator的高阶函数
+def log(text):
+    def decorator(func):
+        def wrapper(*args, **kw):
+            print('%s %s():' % (text, func.__name__))
+            return func(*args, **kw)
+        return wrapper
+    return decorator
+
+
+# f被调用时去call装饰器，先执行最下方的装饰器
+@log('*'*30)
+@decorator_a
+@decorator_b
+def f(a, b):
+    print('a = %d, b = %d' % (a, b))
+    print('In f')
+
+
+f(10, b=20)
+#+end_src
+
 ** filter
 #+begin_src python :results output
 #!/usr/bin/env python3
@@ -528,6 +649,12 @@ python3 test.py
 
 python3 test.py -v
 
+另一种方法是在命令行通过参数-m unittest直接运行单元测试：
+
+python -m unittest mydict_test
+
+这是推荐的做法，因为这样可以一次批量运行很多单元测试，并且，有很多工具可以自动来运行这些单元测试。
+
 ** mock
 *** patch
 #+begin_src python :results output
@@ -627,6 +754,28 @@ logger.warning('%s before you %s', 'Look', 'leap!')
 LOG = logging.getLogger(__name__)
 
 LOG.info('In log')
+#+end_src
+
+*** base exception and print format
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import logging
+
+
+def main():
+    ling = 0
+
+    try:
+        print(1 / ling)
+
+    except Exception as e:
+        logging.exception("Exception while ling is %(ling)s. "
+                          "Exception: %(e)s", {'ling': ling, 'e': e})
+
+
+main()
 #+end_src
 
 *** Exception
@@ -1139,4 +1288,6 @@ list(net.address_exclude(net2))
 ** 为什么__new__(cls)然而__init__(self)
 
 ** with_for_update, with_lockmode (sqlalchemy)
+
+
 
