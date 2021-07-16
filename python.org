@@ -3,6 +3,82 @@
 
 
 * Basic knowledge
+** with statement
+*** user defined class
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
+class Query(object):
+
+    def __init__(self, name):
+        self.name = name
+
+    def __enter__(self):
+        print('-'*30 + '>')
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type:
+            # query异常进入这里
+            print('Error')
+        else:
+            print('<' + '-'*30)
+
+    def query(self):
+        print('Query info about %s...' % self.name)
+
+
+with Query('Bob') as q:
+    q.query()
+#+end_src
+*** context manager
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+from contextlib import contextmanager
+
+
+@contextmanager
+def tag(s):
+    print('-'*30 + '>')
+    yield
+    print('<' + '-'*30)
+    print(s)
+
+
+with tag("END"):
+    print("hello")
+#+end_src
+*** with closing方法最终调用close()
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+from contextlib import closing
+
+
+class C(object):
+    def __init__(self, thing):
+        self.thing = thing
+
+    def tell(self):
+        print(self.thing)
+
+    @staticmethod
+    def real_close():
+        print('close is called')
+
+
+class D(C):
+    def close(self):
+        self.real_close()
+
+
+with closing(D('the thing')) as something:
+    something.tell()
+#+end_src
+
 ** 线程
 *** 启动
 #+begin_src python :results output
@@ -33,6 +109,37 @@ def run_thread(n):
         finally:
             lock.release()
 #+end_src
+*** thread local
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import threading
+
+# 创建全局ThreadLocal对象:
+local_school = threading.local()
+
+
+def process_student():
+    # 获取当前线程关联的student:
+    std = local_school.student
+    print('Hello, %s (in %s)' % (std, threading.current_thread().name))
+
+
+def process_thread(name):
+    # 绑定ThreadLocal的student:
+    local_school.student = name
+    process_student()
+
+
+t1 = threading.Thread(target=process_thread, args=('Alice',), name='Thread-A')
+t2 = threading.Thread(target=process_thread, args=('Bob',), name='Thread-B')
+t1.start()
+t2.start()
+t1.join()
+t2.join()
+#+end_src
+
 ** 进程
 *** 启动
 #+begin_src python :results output
@@ -541,6 +648,8 @@ pip install virtualenv
 *** create env
 virtualenv test-env
 
+virtualenv --no-site-packages venv
+
 virtualenv -p /usr/bin/python2.7 env27
 
 *** use & unuse
@@ -672,6 +781,101 @@ with Timer("List Comprehension Example"):
 #+end_src
 
 * Packages
+** eventlet
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import eventlet
+import time
+
+# monkey patch之后，sleep会导致协程切换
+# 否则co2要等待co1执行完成才会打印
+eventlet.monkey_patch()
+
+
+def co1():
+    print('im in co1')
+    time.sleep(1)
+    print('still in co1')
+
+
+def co2():
+    print('im in co2')
+
+
+pool = eventlet.GreenPool()
+pool.spawn(co1)
+pool.spawn(co2)
+
+pool.waitall()
+#+end_src
+
+** request
+https://www.liaoxuefeng.com/wiki/1016959663602400/1183249464292448
+
+** collections
+**** namedtuple
+简单的定义一个具有名字的数据结构
+
+#+begin_src python :results output
+from collections import namedtuple
+
+Point = namedtuple('Point', ['x', 'y'])
+p = Point(1, 2)
+print('Point:', p.x, p.y)
+#+end_src
+**** deque
+高效实现插入和删除操作的双向列表
+
+#+begin_src python :results output
+from collections import deque
+
+q = deque(['a', 'b', 'c'])
+q.append('x')
+q.appendleft('y')
+print(q)
+#+end_src
+**** defaultdict
+dict key不存在时可以返回默认值
+
+#+begin_src python :results output
+from collections import defaultdict
+
+dd = defaultdict(lambda: 'N/A')
+dd['key1'] = 'abc'
+print('dd[\'key1\'] =', dd['key1'])
+print('dd[\'key2\'] =', dd['key2'])
+
+from collections import Counter
+c = Counter()
+for ch in 'programming':
+    c[ch] = c[ch] + 1
+print(c)
+#+end_src
+**** OrderedDict
+有序的dict
+
+**** ChainMap
+dict串成逻辑dict
+
+#+begin_src python :results output
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from collections import ChainMap
+
+
+d1 = {'running': 5}
+
+computer1 = {'display': 'Lenovo', 'keyboard': 'hp'}
+computer2 = {'cpu': 'Intel', 'memory': 'Kingstone'}
+computer3 = {'display': 'Dell', 'memory': 'Sumsang'}
+
+combined = ChainMap(computer1, computer2, computer3)
+print(combined['display'])
+print(combined['memory'])
+#+end_src
+
 ** ipaddress
 *** 
 ipaddress.ip_address('192.0.2.1')
@@ -1399,12 +1603,14 @@ list(net.address_exclude(net2))
 
 ** yield
 
-
 ** map / reduce
 
 ** 为什么__new__(cls)然而__init__(self)
 
 ** with_for_update, with_lockmode (sqlalchemy)
 
+** python 生成器 send close
+了解了send close throw, 再回去看这篇
+https://www.liaoxuefeng.com/wiki/1016959663602400/1017968846697824
 
 
